@@ -326,6 +326,7 @@ jobs:
 1. Check `packer_working_dir` is correct
 2. Ensure paths are relative to working directory
 3. Verify submodules are checked out:
+
     ```yaml
     - uses: lfit/checkout-gerrit-change-action@v0.9
       with:
@@ -353,7 +354,7 @@ gh secret set TAILSCALE_AUTH_KEY --body "tskey-auth-..."
 2. Verify GERRIT_SSH_PRIVKEY secret is set
 3. Ensure GERRIT_SERVER variable matches
 
-###Common-packer Submodule Not Found
+### Common-packer Submodule Not Found
 
 **Problem:** `common-packer/vars/*.pkrvars.hcl` not found
 
@@ -380,12 +381,12 @@ gh secret set TAILSCALE_AUTH_KEY --body "tskey-auth-..."
 
 See `examples/workflows/` directory:
 
--   `gerrit-packer-verify.yaml` - Complete verification workflow
--   `gerrit-packer-merge.yaml` - Complete build workflow
--   `matrix-build-example.yaml` - Multi-combination builds
+- `gerrit-packer-verify.yaml` - Complete verification workflow
+- `gerrit-packer-merge.yaml` - Complete build workflow
+- `matrix-build-example.yaml` - Multi-combination builds
 
 ## References
 
--   [Gerrit Review Action](https://github.com/lfit/gerrit-review-action)
--   [Checkout Gerrit Change Action](https://github.com/lfit/checkout-gerrit-change-action)
--   [Gerrit Documentation](https://gerrit-review.googlesource.com/Documentation/)
+- [Gerrit Review Action](https://github.com/lfit/gerrit-review-action)
+- [Checkout Gerrit Change Action](https://github.com/lfit/checkout-gerrit-change-action)
+- [Gerrit Documentation](https://gerrit-review.googlesource.com/Documentation/)

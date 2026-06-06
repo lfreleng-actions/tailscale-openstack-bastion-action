@@ -14,11 +14,17 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     strategy:
       matrix:
         python-version: ["3.11", "3.12", "3.13"]
 
     steps:
+      - name: Harden the runner
+        uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411 # v2.19.4
+        with:
+          egress-policy: audit
+
       - name: Checkout code
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
@@ -47,7 +53,13 @@ jobs:
 
   actionlint:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
+      - name: Harden the runner
+        uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411 # v2.19.4
+        with:
+          egress-policy: audit
+
       - name: Checkout code
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
@@ -62,7 +74,13 @@ jobs:
 
   pre-commit:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
+      - name: Harden the runner
+        uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411 # v2.19.4
+        with:
+          egress-policy: audit
+
       - name: Checkout code
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
@@ -72,4 +90,8 @@ jobs:
           python-version: "3.11"
 
       - name: Run pre-commit
+        env:
+          # gha-workflow-linter requires API access not available here;
+          # it is enforced separately and skipped on pre-commit.ci.
+          SKIP: no-commit-to-branch,gha-workflow-linter
         run: pipx run pre-commit run --all-files --show-diff-on-failure

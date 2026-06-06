@@ -56,16 +56,16 @@ Configure these in your repository: **Settings → Secrets and variables → Act
 
 **Tailscale OAuth Key Settings:**
 
--   **Devices:** Write access
--   **Ephemeral:** Recommended (auto-cleanup)
--   **Tags:** `tag:ci` for GitHub runner, `tag:bastion` for bastion host
+- **Devices:** Write access
+- **Ephemeral:** Recommended (auto-cleanup)
+- **Tags:** `tag:ci` for GitHub runner, `tag:bastion` for bastion host
 
 **Tailscale Auth Key Settings:**
 
--   ✅ Ephemeral (bastion auto-removed after disconnect)
--   ✅ Reusable (multiple workflow runs)
--   ✅ Pre-approved (no manual approval needed)
--   Tags: `tag:bastion`
+- ✅ Ephemeral (bastion auto-removed after disconnect)
+- ✅ Reusable (multiple workflow runs)
+- ✅ Pre-approved (no manual approval needed)
+- Tags: `tag:bastion`
 
 ### OpenStack OpenStack Secrets
 
@@ -173,9 +173,9 @@ runcmd:
 
 **Full cloud-init (includes comprehensive setup):**
 
--   See `templates/bastion-cloud-init.yaml`
--   Includes network configuration, logging, ready markers
--   Used by default in workflow
+- See `templates/bastion-cloud-init.yaml`
+- Includes network configuration, logging, ready markers
+- Used by default in workflow
 
 ---
 
@@ -275,11 +275,11 @@ env:
 
 Available flavors:
 
--   `v3-starter-1` - 1 vCPU, 2GB RAM (smallest)
--   `v3-starter-2` - 1 vCPU, 4GB RAM
--   `v3-standard-2` - 2 vCPU, 8GB RAM (recommended)
--   `v3-standard-4` - 4 vCPU, 16GB RAM
--   `v3-standard-8` - 8 vCPU, 32GB RAM
+- `v3-starter-1` - 1 vCPU, 2GB RAM (smallest)
+- `v3-starter-2` - 1 vCPU, 4GB RAM
+- `v3-standard-2` - 2 vCPU, 8GB RAM (recommended)
+- `v3-standard-4` - 4 vCPU, 16GB RAM
+- `v3-standard-8` - 8 vCPU, 32GB RAM
 
 ### 2. Use Different Base Image
 
@@ -351,10 +351,10 @@ sudo journalctl -u tailscaled
 
 **Common issues:**
 
--   Auth key expired → Generate new key
--   Network blocked → Check OpenStack security groups
--   Cloud-init failed → Check `/var/log/cloud-init.log`
--   Tailscale install failed → Check network connectivity
+- Auth key expired → Generate new key
+- Network blocked → Check OpenStack security groups
+- Cloud-init failed → Check `/var/log/cloud-init.log`
+- Tailscale install failed → Check network connectivity
 
 ### OpenStack Connection Failed
 
@@ -402,6 +402,7 @@ openstack image list
     ```
 
 4. Verify bastion can reach OpenStack API:
+
     ```bash
     ssh root@${BASTION_IP} "curl -I https://auth.openstack.net"
     ```
@@ -437,9 +438,9 @@ OPENSTACK_FLAVOR: "v3-starter-1" # $0.01/hour vs $0.08/hour
 
 ### 2. Enable Ephemeral Tailscale Devices
 
--   Auto-cleanup after disconnect
--   No manual device management
--   Recommended for CI/CD
+- Auto-cleanup after disconnect
+- No manual device management
+- Recommended for CI/CD
 
 ### 3. Cleanup on Failure
 
@@ -513,24 +514,24 @@ jobs:
 
 ### GitHub Actions
 
--   **Real-time logs:** Watch builds progress
--   **Artifact downloads:** Packer logs, bastion diagnostics
--   **Email notifications:** Build failures
--   **Status badges:** Display in README
+- **Real-time logs:** Watch builds progress
+- **Artifact downloads:** Packer logs, bastion diagnostics
+- **Email notifications:** Build failures
+- **Status badges:** Display in README
 
 ### Tailscale Admin Console
 
--   **Device connections:** See bastion appear/disappear
--   **Activity logs:** Track all VPN connections
--   **Network stats:** Bandwidth usage
--   **ACL violations:** Security alerts
+- **Device connections:** See bastion appear/disappear
+- **Activity logs:** Track all VPN connections
+- **Network stats:** Bandwidth usage
+- **ACL violations:** Security alerts
 
 ### OpenStack Dashboard
 
--   **Instance status:** Monitor bastion lifecycle
--   **Resource usage:** CPU, RAM, disk, network
--   **Billing:** Track costs per build
--   **Quotas:** Monitor usage limits
+- **Instance status:** Monitor bastion lifecycle
+- **Resource usage:** CPU, RAM, disk, network
+- **Billing:** Track costs per build
+- **Quotas:** Monitor usage limits
 
 ---
 
@@ -559,10 +560,10 @@ Each matrix job gets its own ephemeral bastion!
 
 **Benefits:**
 
--   Parallel execution (faster total time)
--   Isolated environments
--   Independent cleanup
--   Matrix-specific configurations
+- Parallel execution (faster total time)
+- Isolated environments
+- Independent cleanup
+- Matrix-specific configurations
 
 ---
 
@@ -581,26 +582,26 @@ Each matrix job gets its own ephemeral bastion!
 
 ## Support & Resources
 
--   **Tailscale Docs:** https://tailscale.com/kb/
--   **OpenStack Docs:** https://docs.openstack.com/
--   **Packer Docs:** https://developer.hashicorp.com/packer/docs
--   **OpenStack CLI:** https://docs.openstack.org/python-openstackclient/
--   **GitHub Actions:** https://docs.github.com/en/actions
--   **Cloud-Init:** https://cloudinit.readthedocs.io/
+- **Tailscale Docs:** <https://tailscale.com/kb/>
+- **OpenStack Docs:** <https://docs.openstack.com/>
+- **Packer Docs:** <https://developer.hashicorp.com/packer/docs>
+- **OpenStack CLI:** <https://docs.openstack.org/python-openstackclient/>
+- **GitHub Actions:** <https://docs.github.com/en/actions>
+- **Cloud-Init:** <https://cloudinit.readthedocs.io/>
 
 ### Project Documentation
 
--   **Quick Start:** `docs/QUICK_START.md`
--   **Troubleshooting:** `docs/TROUBLESHOOTING.md`
--   **Cloud-Init Reference:** `docs/BASTION_CLOUD_INIT.md`
--   **Setup Checklist:** `CHECKLIST.md`
+- **Quick Start:** `docs/QUICK_START.md`
+- **Troubleshooting:** `docs/TROUBLESHOOTING.md`
+- **Cloud-Init Reference:** `docs/BASTION_CLOUD_INIT.md`
+- **Setup Checklist:** `CHECKLIST.md`
 
 ### Community Support
 
--   **GitHub Discussions:** Ask questions in this repository
--   **Tailscale Community:** https://forum.tailscale.com/
--   **OpenStack Support:** https://openstack.com/support/
--   **Packer Community:** https://discuss.hashicorp.com/c/packer/
+- **GitHub Discussions:** Ask questions in this repository
+- **Tailscale Community:** <https://forum.tailscale.com/>
+- **OpenStack Support:** <https://openstack.com/support/>
+- **Packer Community:** <https://discuss.hashicorp.com/c/packer/>
 
 ---
 

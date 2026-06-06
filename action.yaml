@@ -4,7 +4,6 @@
 
 name: "OpenStack Bastion with Tailscale"
 description: "Setup and manage an OpenStack bastion host with Tailscale VPN for secure remote access"
-author: "The Linux Foundation"
 
 inputs:
   # Operation Mode

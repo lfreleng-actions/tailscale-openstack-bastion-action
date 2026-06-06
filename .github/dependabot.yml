@@ -2,9 +2,6 @@
 # SPDX-FileCopyrightText: 2025 The Linux Foundation
 # SPDX-License-Identifier: Apache-2.0
 
-# Dependabot configuration for automatic dependency updates
-# https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
-
 version: 2
 updates:
   - package-ecosystem: "github-actions"
@@ -12,23 +9,33 @@ updates:
     schedule:
       interval: "weekly"
     commit-message:
-      prefix: "chore"
-      prefix-development: "chore"
-    labels:
-      - "dependencies"
-      - "github-actions"
-    # Ignore Tailscale v4.x until sudo permission issue is resolved
-    ignore:
-      - dependency-name: "tailscale/github-action"
-        versions: [">=4.0.0", "<5.0.0"]
+      prefix: "CI(actions)"
+    # Wait before opening a bump PR so we don't churn on a release
+    # that gets retracted or superseded shortly after it ships.
+    # This is required to satisfy the zizmor workflow auditing tool.
+    cooldown:
+      default-days: 7
+    open-pull-requests-limit: 15
 
+  # zizmor pin, consumed by .github/workflows/zizmor.yaml.
+  # The pin file is read by the workflow at run-time (with grep);
+  # pip never installs from it. This ecosystem entry exists solely so
+  # Dependabot keeps the pinned zizmor version current.
   - package-ecosystem: "pip"
-    directory: "/"
+    directory: "/.github/dependabot"
     schedule:
       interval: "weekly"
     commit-message:
-      prefix: "chore"
-      prefix-development: "chore"
-    labels:
-      - "dependencies"
-      - "python"
+      prefix: "Chore(deps)"
+    cooldown:
+      default-days: 7
+    open-pull-requests-limit: 15
+    # Restrict to direct dependencies. The pin file declares only
+    # `zizmor` itself; the workflow never runs `pip install -r` against
+    # it (it greps the version and feeds it to `uvx --from`), so there
+    # is no lockfile and no place for Dependabot to express transitive
+    # updates. Without this filter Dependabot's resolver errors with
+    # "can't update vulnerable dependencies without a lockfile" whenever
+    # a transitive of zizmor carries a security advisory.
+    allow:
+      - dependency-type: "direct"

@@ -4,9 +4,9 @@ Get automated Packer builds running in **15-20 minutes**.
 
 ## Prerequisites
 
--   ✅ GitHub repository with Packer files
--   ✅ OpenStack account with OpenStack access
--   ✅ Tailscale account (free tier works)
+- ✅ GitHub repository with Packer files
+- ✅ OpenStack account with OpenStack access
+- ✅ Tailscale account (free tier works)
 
 ---
 
@@ -133,9 +133,9 @@ git push
 
 ### Monitor Progress
 
--   **GitHub Actions UI:** See each step's logs
--   **Tailscale Admin:** Watch bastion appear in devices list
--   **OpenStack Dashboard:** See instance being created/deleted
+- **GitHub Actions UI:** See each step's logs
+- **Tailscale Admin:** Watch bastion appear in devices list
+- **OpenStack Dashboard:** See instance being created/deleted
 
 ---
 
@@ -143,12 +143,12 @@ git push
 
 After your first successful run:
 
--   [ ] Workflow completed without errors
--   [ ] Bastion appeared in Tailscale admin console
--   [ ] OpenStack instance was created and deleted
--   [ ] Packer build produced expected image
--   [ ] No lingering resources in OpenStack
--   [ ] Tailscale device auto-removed (ephemeral enabled)
+- [ ] Workflow completed without errors
+- [ ] Bastion appeared in Tailscale admin console
+- [ ] OpenStack instance was created and deleted
+- [ ] Packer build produced expected image
+- [ ] No lingering resources in OpenStack
+- [ ] Tailscale device auto-removed (ephemeral enabled)
 
 ---
 
@@ -167,16 +167,16 @@ openstack server list
 
 **Fix:** Check auth key settings - must be reusable and pre-authorized
 
--   Regenerate key with correct settings
--   Update `TAILSCALE_AUTH_KEY` secret
+- Regenerate key with correct settings
+- Update `TAILSCALE_AUTH_KEY` secret
 
 ### ❌ "Bastion never appears in Tailscale"
 
 **Fix:** Cloud-init might have failed
 
--   Check OpenStack console logs for the instance
--   Try different base image (Ubuntu 22.04 recommended)
--   Increase `BASTION_WAIT_TIMEOUT` in workflow
+- Check OpenStack console logs for the instance
+- Try different base image (Ubuntu 22.04 recommended)
+- Increase `BASTION_WAIT_TIMEOUT` in workflow
 
 ### ❌ "Packer validation failed"
 
@@ -240,15 +240,15 @@ cp examples/templates/builder.pkr.hcl packer/templates/docker.pkr.hcl
 
 ### OpenStack Costs (approx)
 
--   **Bastion instance:** v3-standard-2 @ ~$0.08/hour
--   **Average build time:** 15 minutes
--   **Cost per build:** ~$0.02
--   **Monthly (daily builds):** ~$0.60/month
+- **Bastion instance:** v3-standard-2 @ ~$0.08/hour
+- **Average build time:** 15 minutes
+- **Cost per build:** ~$0.02
+- **Monthly (daily builds):** ~$0.60/month
 
 ### Tailscale Costs
 
--   **Free tier:** 100 devices, unlimited users
--   **Ephemeral devices:** FREE (don't count toward limit)
+- **Free tier:** 100 devices, unlimited users
+- **Ephemeral devices:** FREE (don't count toward limit)
 
 **Total estimated cost:** < $1/month for daily builds 💰
 
@@ -258,27 +258,27 @@ cp examples/templates/builder.pkr.hcl packer/templates/docker.pkr.hcl
 
 ### Documentation
 
--   📖 **Main README:** `README.md`
--   📖 **Troubleshooting:** `docs/TROUBLESHOOTING.md`
--   📖 **Examples:** `examples/README.md`
+- 📖 **Main README:** `README.md`
+- 📖 **Troubleshooting:** `docs/TROUBLESHOOTING.md`
+- 📖 **Examples:** `examples/README.md`
 
 ### Troubleshooting
 
 Enable debug mode in workflow dispatch:
 
--   Set `debug_mode: true`
+- Set `debug_mode: true`
 
 Check logs:
 
--   GitHub Actions → Workflow run → Download artifacts
--   OpenStack console logs
--   Tailscale admin panel
+- GitHub Actions → Workflow run → Download artifacts
+- OpenStack console logs
+- Tailscale admin panel
 
 ### Community
 
--   **GitHub Discussions:** Ask questions in your repo
--   **Tailscale Community:** https://tailscale.com/kb/
--   **OpenStack Support:** https://openstack.com/support/
+- **GitHub Discussions:** Ask questions in your repo
+- **Tailscale Community:** <https://tailscale.com/kb/>
+- **OpenStack Support:** <https://openstack.com/support/>
 
 ---
 
