@@ -4,12 +4,12 @@ Common issues and solutions for the OpenStack Tailscale Bastion workflow.
 
 ## Table of Contents
 
--   [OpenStack Issues](#openstack-issues)
--   [Tailscale Issues](#tailscale-issues)
--   [Bastion Issues](#bastion-issues)
--   [Packer Issues](#packer-issues)
--   [Network Issues](#network-issues)
--   [Debug Techniques](#debug-techniques)
+- [OpenStack Issues](#openstack-issues)
+- [Tailscale Issues](#tailscale-issues)
+- [Bastion Issues](#bastion-issues)
+- [Packer Issues](#packer-issues)
+- [Network Issues](#network-issues)
+- [Debug Techniques](#debug-techniques)
 
 ---
 
@@ -77,6 +77,7 @@ Error: Quota exceeded for cores
 3. Request quota increase from OpenStack support
 
 4. Use smaller instance flavor:
+
     ```yaml
     bastion_flavor: "v3-starter-1" # Smaller/cheaper
     ```
@@ -147,6 +148,7 @@ Bastion never appears in tailscale status
     - Review Tailscale ACL policy
 
 4. **Increase Timeout:**
+
     ```yaml
     env:
         BASTION_WAIT_TIMEOUT: 600 # 10 minutes
@@ -225,6 +227,7 @@ Instance shows ERROR status
     - Image corrupted
 
 4. **Try Different Base Image:**
+
     ```yaml
     bastion_image: "Ubuntu 24.04" # Try newer version
     ```
@@ -357,6 +360,7 @@ Build failed during provisioning
 
     - Set workflow input `debug_mode: true`
     - Or add to workflow:
+
         ```yaml
         env:
             PACKER_LOG: 1
@@ -376,6 +380,7 @@ Build failed during provisioning
     ```
 
 4. **Check Build Instance:**
+
     ```bash
     openstack server list  # Find build instance
     openstack console log show <build-instance>
@@ -412,6 +417,7 @@ Plugin not found
     ```
 
 3. **Cache Plugins (in workflow):**
+
     ```yaml
     - name: Cache Packer plugins
       uses: actions/cache@v3
@@ -447,6 +453,7 @@ Error: Unable to reach OpenStack endpoint
     - No additional firewall rules needed
 
 3. **Test from Runner:**
+
     ```yaml
     - name: Test connectivity
       run: |
@@ -470,6 +477,7 @@ Bastion cannot connect to target
     - Verify both instances on same network
     - Check security group rules
     - Verify network exists:
+
         ```bash
         openstack network list
         ```
@@ -489,6 +497,7 @@ Bastion cannot connect to target
     ```
 
 4. **Allow SSH Between Instances:**
+
     ```bash
     openstack security group rule create \
       --protocol tcp \
@@ -513,7 +522,7 @@ env:
 
 **In Workflow Dispatch:**
 
--   Set `debug_mode: true`
+- Set `debug_mode: true`
 
 ### View Bastion Logs
 
@@ -635,23 +644,23 @@ PACKER_LOG=1 packer build -var-file=... template.pkr.hcl
 
 ### Check Documentation
 
--   Main README: `README.md`
--   Quick Start: `docs/QUICK_START.md`
--   This guide: `docs/TROUBLESHOOTING.md`
+- Main README: `README.md`
+- Quick Start: `docs/QUICK_START.md`
+- This guide: `docs/TROUBLESHOOTING.md`
 
 ### View Logs
 
--   GitHub Actions logs
--   Packer logs artifact
--   Bastion logs artifact
--   OpenStack console logs
+- GitHub Actions logs
+- Packer logs artifact
+- Bastion logs artifact
+- OpenStack console logs
 
 ### Community Support
 
--   GitHub Discussions
--   Tailscale Community Forum
--   OpenStack Support Portal
--   Packer Community Forum
+- GitHub Discussions
+- Tailscale Community Forum
+- OpenStack Support Portal
+- Packer Community Forum
 
 ### Reporting Issues
 
@@ -689,33 +698,33 @@ packer validate -var-file=vars/ubuntu-22.04.pkrvars.hcl templates/builder.pkr.hc
 
 ### 2. Start Simple
 
--   Use default workflow settings first
--   Build one template at a time
--   Use proven base images (Ubuntu 22.04)
+- Use default workflow settings first
+- Build one template at a time
+- Use proven base images (Ubuntu 22.04)
 
 ### 3. Use Ephemeral Keys
 
--   Always use ephemeral Tailscale auth keys
--   Enable auto-cleanup features
--   Set reasonable expiration times
+- Always use ephemeral Tailscale auth keys
+- Enable auto-cleanup features
+- Set reasonable expiration times
 
 ### 4. Monitor Costs
 
--   Check OpenStack billing regularly
--   Delete unused instances
--   Use appropriate instance flavors
+- Check OpenStack billing regularly
+- Delete unused instances
+- Use appropriate instance flavors
 
 ### 5. Keep Secrets Secure
 
--   Rotate credentials regularly
--   Use minimal required permissions
--   Never commit secrets to git
+- Rotate credentials regularly
+- Use minimal required permissions
+- Never commit secrets to git
 
 ### 6. Enable Cleanup
 
--   Workflow has automatic cleanup
--   Verify cleanup completed
--   Manual cleanup if workflow fails:
+- Workflow has automatic cleanup
+- Verify cleanup completed
+- Manual cleanup if workflow fails:
 
 ```bash
 # List bastion instances
@@ -754,10 +763,10 @@ export OS_DEBUG=1
 
 ### Important Files
 
--   Workflow: `.github/workflows/packer-openstack-bastion-build.yaml`
--   Pre-commit: `.pre-commit-config.yaml`
--   Yamllint: `.yamllint.conf`
--   Documentation: `docs/`
+- Workflow: `.github/workflows/packer-openstack-bastion-build.yaml`
+- Pre-commit: `.pre-commit-config.yaml`
+- Yamllint: `.yamllint.conf`
+- Documentation: `docs/`
 
 ### Key Environment Variables
 

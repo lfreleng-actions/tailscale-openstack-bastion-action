@@ -139,10 +139,10 @@ pytest tests/test_action.py::test_validate_inputs
 
 ### Shell Scripts
 
--   Follow [Google Shell Style Guide](https://google.github.io/styleguide/shellguide.html)
--   Use `shellcheck` for linting
--   Add error handling with `set -euo pipefail`
--   Use descriptive variable names in UPPER_CASE
+- Follow [Google Shell Style Guide](https://google.github.io/styleguide/shellguide.html)
+- Use `shellcheck` for linting
+- Add error handling with `set -euo pipefail`
+- Use descriptive variable names in UPPER_CASE
 
 Example:
 
@@ -161,18 +161,18 @@ fi
 
 ### YAML Files
 
--   2-space indentation
--   Use `yamllint` for validation
--   Quote strings with special characters
--   Use explicit anchors/aliases sparingly
+- 2-space indentation
+- Use `yamllint` for validation
+- Quote strings with special characters
+- Use explicit anchors/aliases sparingly
 
 ### Python Code
 
--   Follow PEP 8
--   Type hints required
--   Docstrings for all functions
--   Use `black` for formatting
--   Use `ruff` for linting
+- Follow PEP 8
+- Type hints required
+- Docstrings for all functions
+- Use `black` for formatting
+- Use `ruff` for linting
 
 ---
 
@@ -190,19 +190,19 @@ inputs:
         default: "default-value"
 ```
 
-2. Update scripts to use input:
+1. Update scripts to use input:
 
 ```bash
 # In scripts/build-packer.sh
 NEW_FEATURE="${INPUT_NEW_FEATURE:-}"
 ```
 
-3. Update documentation:
+1. Update documentation:
 
     - README.md - Add to inputs table
     - examples/ - Show usage example
 
-4. Add tests:
+2. Add tests:
 
 ```python
 def test_new_feature():
@@ -221,13 +221,13 @@ set -euo pipefail
 # Script implementation
 ```
 
-2. Make executable:
+1. Make executable:
 
 ```bash
 chmod +x scripts/new-script.sh
 ```
 
-3. Add to `action.yaml`:
+1. Add to `action.yaml`:
 
 ```yaml
 - name: Run New Script
@@ -236,7 +236,7 @@ chmod +x scripts/new-script.sh
       bash scripts/new-script.sh "${{ inputs.parameter }}"
 ```
 
-4. Add tests and documentation
+1. Add tests and documentation
 
 ---
 
@@ -308,13 +308,13 @@ git push origin v1 --force
 
 ### Release Checklist
 
--   [ ] All tests passing
--   [ ] Documentation updated
--   [ ] CHANGELOG.md updated
--   [ ] Version bumped in relevant files
--   [ ] Git tag created
--   [ ] GitHub release created
--   [ ] Example workflows tested
+- [ ] All tests passing
+- [ ] Documentation updated
+- [ ] CHANGELOG.md updated
+- [ ] Version bumped in relevant files
+- [ ] Git tag created
+- [ ] GitHub release created
+- [ ] Example workflows tested
 
 ### Creating GitHub Release
 
@@ -333,29 +333,29 @@ gh release create v1.0.0 \
 
 Runs on every push and PR:
 
--   YAML validation
--   Shell script linting
--   Action metadata validation
--   Markdown linting
--   Python linting
+- YAML validation
+- Shell script linting
+- Action metadata validation
+- Markdown linting
+- Python linting
 
 ### Test Workflows
 
 #### test-action-validate.yaml
 
--   Tests Packer validation mode
--   Uses syntax-only validation
--   No bastion required
--   Fast feedback (~2 minutes)
+- Tests Packer validation mode
+- Uses syntax-only validation
+- No bastion required
+- Fast feedback (~2 minutes)
 
 #### test-tailscale-setup-build-minimal.yaml
 
--   Tests full integration
--   Creates bastion host
--   Tests Tailscale connectivity
--   Tests Packer build
--   Full cleanup
--   Longer runtime (~10 minutes)
+- Tests full integration
+- Creates bastion host
+- Tests Tailscale connectivity
+- Tests Packer build
+- Full cleanup
+- Longer runtime (~10 minutes)
 
 ---
 
@@ -446,11 +446,11 @@ cloud-init devel schema -c templates/bastion-cloud-init.yaml --annotate
 
 ### PR Requirements
 
--   [ ] All CI checks passing
--   [ ] Tests added/updated
--   [ ] Documentation updated
--   [ ] Commit messages follow conventions
--   [ ] DCO sign-off included
+- [ ] All CI checks passing
+- [ ] Tests added/updated
+- [ ] Documentation updated
+- [ ] Commit messages follow conventions
+- [ ] DCO sign-off included
 
 ### Commit Message Format
 
@@ -484,18 +484,18 @@ Signed-off-by: Anil Belur <askb23@gmail.com>
 
 ## Getting Help
 
--   **Documentation:** See `docs/` directory
--   **Issues:** [GitHub Issues](https://github.com/lfit/releng-packer-action/issues)
--   **Discussions:** [GitHub Discussions](https://github.com/lfit/releng-packer-action/discussions)
--   **Slack:** #releng channel (for LF projects)
+- **Documentation:** See `docs/` directory
+- **Issues:** [GitHub Issues](https://github.com/lfit/releng-packer-action/issues)
+- **Discussions:** [GitHub Discussions](https://github.com/lfit/releng-packer-action/discussions)
+- **Slack:** #releng channel (for LF projects)
 
 ---
 
 ## Additional Resources
 
--   [GitHub Actions Documentation](https://docs.github.com/en/actions)
--   [Composite Actions](https://docs.github.com/en/actions/creating-actions/creating-a-composite-action)
--   [Action Metadata Syntax](https://docs.github.com/en/actions/creating-actions/metadata-syntax-for-github-actions)
--   [Packer Documentation](https://developer.hashicorp.com/packer)
--   [Tailscale API](https://tailscale.com/kb/1101/api)
--   [OpenStack CLI](https://docs.openstack.org/python-openstackclient/)
+- [GitHub Actions Documentation](https://docs.github.com/en/actions)
+- [Composite Actions](https://docs.github.com/en/actions/creating-actions/creating-a-composite-action)
+- [Action Metadata Syntax](https://docs.github.com/en/actions/creating-actions/metadata-syntax-for-github-actions)
+- [Packer Documentation](https://developer.hashicorp.com/packer)
+- [Tailscale API](https://tailscale.com/kb/1101/api)
+- [OpenStack CLI](https://docs.openstack.org/python-openstackclient/)

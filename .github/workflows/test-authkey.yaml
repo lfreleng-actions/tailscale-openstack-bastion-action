@@ -30,8 +30,14 @@ jobs:
   test-authkey-bastion:
     name: Test Bastion with Auth Key
     runs-on: ubuntu-latest
+    timeout-minutes: 30
 
     steps:
+      - name: Harden the runner
+        uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411 # v2.19.4
+        with:
+          egress-policy: audit
+
       - name: Checkout code
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 

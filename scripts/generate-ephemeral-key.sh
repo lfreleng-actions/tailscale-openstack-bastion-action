@@ -97,7 +97,7 @@ generate_auth_key() {
 
     local request_body
     request_body=$(jq -n \
-        --argjson capabilities '{"devices": {"create": {"reusable": true, "ephemeral": '$EPHEMERAL', "preauthorized": '$PREAUTH', "tags": '"${tags_json}"'}}}' \
+        --argjson capabilities '{"devices": {"create": {"reusable": true, "ephemeral": '"${EPHEMERAL}"', "preauthorized": '"${PREAUTH}"', "tags": '"${tags_json}"'}}}' \
         --arg expiry "${KEY_EXPIRY}" \
         '{
             capabilities: $capabilities,

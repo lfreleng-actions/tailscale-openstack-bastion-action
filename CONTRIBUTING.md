@@ -9,14 +9,14 @@ Thank you for your interest in contributing! This document provides guidelines f
 
 ## Table of Contents
 
--   [Code of Conduct](#code-of-conduct)
--   [Getting Started](#getting-started)
--   [Development Setup](#development-setup)
--   [Making Changes](#making-changes)
--   [Testing](#testing)
--   [Submitting Changes](#submitting-changes)
--   [Coding Standards](#coding-standards)
--   [License](#license)
+- [Code of Conduct](#code-of-conduct)
+- [Getting Started](#getting-started)
+- [Development Setup](#development-setup)
+- [Making Changes](#making-changes)
+- [Testing](#testing)
+- [Submitting Changes](#submitting-changes)
+- [Coding Standards](#coding-standards)
+- [License](#license)
 
 ## Code of Conduct
 
@@ -53,11 +53,11 @@ pytest tests/
 
 This project uses pre-commit hooks to ensure code quality:
 
--   **Trailing whitespace removal**
--   **YAML validation**
--   **Shell script linting (ShellCheck)**
--   **Spell checking (Codespell)**
--   **REUSE compliance**
+- **Trailing whitespace removal**
+- **YAML validation**
+- **Shell script linting (ShellCheck)**
+- **Spell checking (Codespell)**
+- **REUSE compliance**
 
 Run manually:
 
@@ -69,11 +69,11 @@ pre-commit run --all-files
 
 ### Branch Naming
 
--   `feature/description` - New features
--   `fix/description` - Bug fixes
--   `docs/description` - Documentation updates
--   `test/description` - Test improvements
--   `chore/description` - Maintenance tasks
+- `feature/description` - New features
+- `fix/description` - Bug fixes
+- `docs/description` - Documentation updates
+- `test/description` - Test improvements
+- `chore/description` - Maintenance tasks
 
 ### Commit Messages
 
@@ -89,13 +89,13 @@ Signed-off-by: Your Name <your.email@example.com>
 
 **Types:**
 
--   `feat`: New feature
--   `fix`: Bug fix
--   `docs`: Documentation
--   `test`: Tests
--   `chore`: Maintenance
--   `refactor`: Code refactoring
--   `ci`: CI/CD changes
+- `feat`: New feature
+- `fix`: Bug fix
+- `docs`: Documentation
+- `test`: Tests
+- `chore`: Maintenance
+- `refactor`: Code refactoring
+- `ci`: CI/CD changes
 
 **Examples:**
 
@@ -172,43 +172,43 @@ open htmlcov/index.html
 
 ### Pull Request Checklist
 
--   [ ] Code follows project style guidelines
--   [ ] All tests pass
--   [ ] Documentation updated (if needed)
--   [ ] Commit messages follow conventional commits
--   [ ] Commits are signed (`-s`)
--   [ ] Pre-commit hooks pass
--   [ ] REUSE compliance maintained
+- [ ] Code follows project style guidelines
+- [ ] All tests pass
+- [ ] Documentation updated (if needed)
+- [ ] Commit messages follow conventional commits
+- [ ] Commits are signed (`-s`)
+- [ ] Pre-commit hooks pass
+- [ ] REUSE compliance maintained
 
 ## Coding Standards
 
 ### Shell Scripts
 
--   Use ShellCheck for linting
--   Follow [Google Shell Style Guide](https://google.github.io/styleguide/shellguide.html)
--   Add error handling (`set -euo pipefail`)
--   Use meaningful variable names
--   Add comments for complex logic
+- Use ShellCheck for linting
+- Follow [Google Shell Style Guide](https://google.github.io/styleguide/shellguide.html)
+- Add error handling (`set -euo pipefail`)
+- Use meaningful variable names
+- Add comments for complex logic
 
 ### Python Code
 
--   Follow PEP 8 style guide
--   Use type hints where applicable
--   Add docstrings for functions/classes
--   Keep functions focused and small
+- Follow PEP 8 style guide
+- Use type hints where applicable
+- Add docstrings for functions/classes
+- Keep functions focused and small
 
 ### YAML Files
 
--   Use 2-space indentation
--   Follow yamllint rules
--   Add comments for complex configurations
+- Use 2-space indentation
+- Follow yamllint rules
+- Add comments for complex configurations
 
 ### Documentation
 
--   Use Markdown for all documentation
--   Follow structure in existing docs
--   Include code examples
--   Keep line length reasonable (80-100 chars)
+- Use Markdown for all documentation
+- Follow structure in existing docs
+- Include code examples
+- Keep line length reasonable (80-100 chars)
 
 ## REUSE Compliance
 
@@ -247,16 +247,16 @@ Releases are automated via GitHub Actions:
 
 ## Getting Help
 
--   **Documentation:** Check [docs/](docs/) directory
--   **Issues:** Search [existing issues](https://github.com/askb/tailscale-openstack-bastion-action/issues)
--   **Discussions:** Use GitHub Discussions for questions
+- **Documentation:** Check [docs/](docs/) directory
+- **Issues:** Search [existing issues](https://github.com/askb/tailscale-openstack-bastion-action/issues)
+- **Discussions:** Use GitHub Discussions for questions
 
 ## Recognition
 
 Contributors are recognized in:
 
--   Release notes (auto-generated)
--   README.md contributors section
--   Git commit history
+- Release notes (auto-generated)
+- README.md contributors section
+- Git commit history
 
 Thank you for contributing! 🎉

@@ -18,9 +18,9 @@ gerrit-<event-type>-<description>.yaml
 
 Where:
 
--   **gerrit**: Required prefix - all workflows must contain "gerrit" in the filename
--   **event-type**: The Gerrit event type (e.g., "verify", "merge")
--   **description**: Optional descriptive name (e.g., "packer", "build", etc.)
+- **gerrit**: Required prefix - all workflows must contain "gerrit" in the filename
+- **event-type**: The Gerrit event type (e.g., "verify", "merge")
+- **description**: Optional descriptive name (e.g., "packer", "build", etc.)
 
 ### Event Types
 
@@ -254,17 +254,17 @@ To enable Gerrit-to-GitHub integration in a repository:
 
 ### 1. GitHub Repository Configuration
 
--   Repository must be a mirror/replica of the Gerrit repository
--   Must have Actions enabled
--   Must have appropriate secrets configured (cloud credentials, Tailscale tokens, etc.)
+- Repository must be a mirror/replica of the Gerrit repository
+- Must have Actions enabled
+- Must have appropriate secrets configured (cloud credentials, Tailscale tokens, etc.)
 
 ### 2. Gerrit Configuration
 
 The Gerrit server must be configured with:
 
--   `gerrit-to-platform` hook installed
--   Replication plugin configured to mirror to GitHub
--   Hook must be configured with GitHub token and repository mapping
+- `gerrit-to-platform` hook installed
+- Replication plugin configured to mirror to GitHub
+- Hook must be configured with GitHub token and repository mapping
 
 ### 3. Required Secrets
 
@@ -290,8 +290,8 @@ TAILSCALE_AUTHKEY
 
 Copy example workflows from this repository:
 
--   `examples/workflows/gerrit-packer-verify.yaml` → `.github/workflows/`
--   `examples/workflows/gerrit-packer-merge.yaml` → `.github/workflows/`
+- `examples/workflows/gerrit-packer-verify.yaml` → `.github/workflows/`
+- `examples/workflows/gerrit-packer-merge.yaml` → `.github/workflows/`
 
 Customize as needed for your repository structure.
 
@@ -316,13 +316,13 @@ gh workflow run gerrit-packer-verify.yaml \
 
 ### Verification Checklist
 
--   [ ] Workflow filenames follow the convention (`gerrit-*-verify.yaml` or `gerrit-*-merge.yaml`)
--   [ ] Workflows use `workflow_dispatch` trigger
--   [ ] All required Gerrit inputs are defined
--   [ ] Checkout fetches the Gerrit refspec correctly
--   [ ] Submodules are checked out if needed (`submodules: recursive`)
--   [ ] Required secrets are configured
--   [ ] Workflows complete successfully with manual trigger
+- [ ] Workflow filenames follow the convention (`gerrit-*-verify.yaml` or `gerrit-*-merge.yaml`)
+- [ ] Workflows use `workflow_dispatch` trigger
+- [ ] All required Gerrit inputs are defined
+- [ ] Checkout fetches the Gerrit refspec correctly
+- [ ] Submodules are checked out if needed (`submodules: recursive`)
+- [ ] Required secrets are configured
+- [ ] Workflows complete successfully with manual trigger
 
 ## Troubleshooting
 
@@ -347,14 +347,14 @@ gh workflow run gerrit-packer-verify.yaml \
 
 ## References
 
--   [gerrit-to-platform documentation](https://gerrit-to-platform.readthedocs.io/)
--   [GitHub Actions workflow_dispatch](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_dispatch)
--   [Gerrit hooks](https://gerrit-review.googlesource.com/Documentation/config-hooks.html)
--   [Tailscale ACLs](https://tailscale.com/kb/1018/acls)
+- [gerrit-to-platform documentation](https://gerrit-to-platform.readthedocs.io/)
+- [GitHub Actions workflow_dispatch](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_dispatch)
+- [Gerrit hooks](https://gerrit-review.googlesource.com/Documentation/config-hooks.html)
+- [Tailscale ACLs](https://tailscale.com/kb/1018/acls)
 
 ## Support
 
 For issues or questions:
 
--   File an issue in the [releng-packer-action repository](https://github.com/lfit/releng-packer-action)
--   Contact the LF Release Engineering team
+- File an issue in the [releng-packer-action repository](https://github.com/lfit/releng-packer-action)
+- Contact the LF Release Engineering team

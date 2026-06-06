@@ -24,46 +24,46 @@ SPDX-FileCopyrightText: 2025 The Linux Foundation
 
 ### Alternative: Email
 
-Send vulnerability reports to: **security@linuxfoundation.org**
+Send vulnerability reports to: **<security@linuxfoundation.org>**
 
 Include:
 
--   Description of the vulnerability
--   Steps to reproduce
--   Potential impact
--   Suggested fix (if any)
+- Description of the vulnerability
+- Steps to reproduce
+- Potential impact
+- Suggested fix (if any)
 
 ## Response Timeline
 
--   **Initial Response:** Within 48 hours
--   **Status Update:** Within 7 days
--   **Fix Timeline:** Varies by severity
+- **Initial Response:** Within 48 hours
+- **Status Update:** Within 7 days
+- **Fix Timeline:** Varies by severity
 
 ## Severity Levels
 
 ### Critical
 
--   Remote code execution
--   Authentication bypass
--   Privilege escalation
--   **Response:** Immediate (24-48 hours)
+- Remote code execution
+- Authentication bypass
+- Privilege escalation
+- **Response:** Immediate (24-48 hours)
 
 ### High
 
--   Information disclosure of sensitive data
--   Denial of service
--   **Response:** Within 7 days
+- Information disclosure of sensitive data
+- Denial of service
+- **Response:** Within 7 days
 
 ### Medium
 
--   Minor information disclosure
--   Security misconfiguration
--   **Response:** Within 14 days
+- Minor information disclosure
+- Security misconfiguration
+- **Response:** Within 14 days
 
 ### Low
 
--   Best practice violations
--   **Response:** Next regular release
+- Best practice violations
+- **Response:** Next regular release
 
 ## Security Best Practices
 
@@ -127,49 +127,49 @@ Include:
 
 ### Tailscale Integration
 
--   **Risk:** Compromised Tailscale credentials could allow network access
--   **Mitigation:**
-    -   Use OAuth ephemeral keys with 1-hour expiry
-    -   Tag-based ACL restrictions
-    -   Automatic cleanup on bastion teardown
+- **Risk:** Compromised Tailscale credentials could allow network access
+- **Mitigation:**
+  - Use OAuth ephemeral keys with 1-hour expiry
+  - Tag-based ACL restrictions
+  - Automatic cleanup on bastion teardown
 
 ### OpenStack Credentials
 
--   **Risk:** Leaked OpenStack credentials could allow resource creation
--   **Mitigation:**
-    -   Store in GitHub Secrets only
-    -   Use application credentials with limited scope
-    -   Monitor OpenStack activity
+- **Risk:** Leaked OpenStack credentials could allow resource creation
+- **Mitigation:**
+  - Store in GitHub Secrets only
+  - Use application credentials with limited scope
+  - Monitor OpenStack activity
 
 ### SSH Access
 
--   **Risk:** Bastion could be used as attack vector
--   **Mitigation:**
-    -   Ephemeral bastions (destroyed after use)
-    -   Tailscale network isolation
-    -   No public IP exposure
+- **Risk:** Bastion could be used as attack vector
+- **Mitigation:**
+  - Ephemeral bastions (destroyed after use)
+  - Tailscale network isolation
+  - No public IP exposure
 
 ### Cloud-Init Scripts
 
--   **Risk:** Malicious cloud-init could compromise bastion
--   **Mitigation:**
-    -   Template-based cloud-init generation
-    -   Input validation and sanitization
-    -   No dynamic code execution
+- **Risk:** Malicious cloud-init could compromise bastion
+- **Mitigation:**
+  - Template-based cloud-init generation
+  - Input validation and sanitization
+  - No dynamic code execution
 
 ## Security Updates
 
 Security updates are released:
 
--   **Critical:** Immediately upon fix
--   **High:** Within 7 days
--   **Medium/Low:** Next regular release
+- **Critical:** Immediately upon fix
+- **High:** Within 7 days
+- **Medium/Low:** Next regular release
 
 Updates are announced via:
 
--   GitHub Security Advisories
--   Release notes
--   README.md
+- GitHub Security Advisories
+- Release notes
+- README.md
 
 ## Disclosure Policy
 
@@ -184,33 +184,33 @@ We follow responsible disclosure:
 
 ### Current Security Measures
 
--   ✅ OAuth credential management
--   ✅ Ephemeral auth keys with expiry
--   ✅ Automatic bastion cleanup
--   ✅ Network isolation via Tailscale
--   ✅ Input validation and sanitization
--   ✅ Secret masking in logs
--   ✅ REUSE compliance for licensing
--   ✅ SHA-pinned external dependencies (some workflows)
+- ✅ OAuth credential management
+- ✅ Ephemeral auth keys with expiry
+- ✅ Automatic bastion cleanup
+- ✅ Network isolation via Tailscale
+- ✅ Input validation and sanitization
+- ✅ Secret masking in logs
+- ✅ REUSE compliance for licensing
+- ✅ SHA-pinned external dependencies (some workflows)
 
 ### Planned Enhancements
 
--   [ ] Full SHA pinning of all external actions
--   [ ] Automated security scanning in CI
--   [ ] Dependency vulnerability scanning
--   [ ] SBOM (Software Bill of Materials) generation
+- [ ] Full SHA pinning of all external actions
+- [ ] Automated security scanning in CI
+- [ ] Dependency vulnerability scanning
+- [ ] SBOM (Software Bill of Materials) generation
 
 ## Compliance
 
 This project follows:
 
--   [OpenSSF Best Practices](https://bestpractices.coreinfrastructure.org/)
--   [REUSE Specification](https://reuse.software/)
--   Linux Foundation security guidelines
+- [OpenSSF Best Practices](https://bestpractices.coreinfrastructure.org/)
+- [REUSE Specification](https://reuse.software/)
+- Linux Foundation security guidelines
 
 ## Contact
 
-For security questions: security@linuxfoundation.org
+For security questions: <security@linuxfoundation.org>
 For general questions: Use GitHub Discussions
 
 ---

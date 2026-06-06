@@ -5,16 +5,21 @@ SPDX-FileCopyrightText: 2025 The Linux Foundation
 
 # OpenStack Bastion with Tailscale Action
 
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable-next-line MD013 -->
+[![Linux Foundation](https://img.shields.io/badge/Linux-Foundation-blue)](https://linuxfoundation.org/) [![Source Code](https://img.shields.io/badge/GitHub-100000?logo=github&logoColor=white&color=blue)](https://github.com/askb/tailscale-openstack-bastion-action) [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) [![pre-commit.ci status badge]][pre-commit.ci results page] [![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/askb/tailscale-openstack-bastion-action/badge)](https://scorecard.dev/viewer/?uri=github.com/askb/tailscale-openstack-bastion-action)
+<!-- prettier-ignore-end -->
+
 A GitHub Action to setup and teardown OpenStack bastion hosts with Tailscale VPN for secure remote access. This action creates ephemeral bastion hosts that connect to your Tailscale network, enabling secure SSH access to OpenStack instances from GitHub Actions runners.
 
 ## Features
 
--   🔒 **Secure Access**: Uses Tailscale VPN for encrypted, zero-trust networking
--   ☁️ **Cloud-Native**: Built for OpenStack cloud environments
--   ⚡ **Ephemeral**: Automatic bastion creation and cleanup
--   🛡️ **Fail-Safe**: Automatic cleanup on timeout or failure
--   🔑 **Flexible Auth**: Supports both OAuth (recommended) and legacy auth keys
--   📊 **Detailed Logging**: Comprehensive logs for debugging
+- 🔒 **Secure Access**: Uses Tailscale VPN for encrypted, zero-trust networking
+- ☁️ **Cloud-Native**: Built for OpenStack cloud environments
+- ⚡ **Ephemeral**: Automatic bastion creation and cleanup
+- 🛡️ **Fail-Safe**: Automatic cleanup on timeout or failure
+- 🔑 **Flexible Auth**: Supports both OAuth (recommended) and legacy auth keys
+- 📊 **Detailed Logging**: Comprehensive logs for debugging
 
 ## Architecture
 
@@ -97,9 +102,9 @@ See [ARCHITECTURE.md](docs/ARCHITECTURE.md) for detailed architecture documentat
 
 ## Prerequisites
 
--   OpenStack cloud account with necessary permissions
--   Tailscale account with configured ACLs
--   GitHub repository secrets configured (see Configuration section)
+- OpenStack cloud account with necessary permissions
+- Tailscale account with configured ACLs
+- GitHub repository secrets configured (see Configuration section)
 
 ## Usage
 
@@ -186,20 +191,20 @@ The recommended approach uses OAuth to generate short-lived, ephemeral auth keys
 
 1. GitHub runner connects to Tailscale using OAuth credentials
 2. Action generates a short-lived (1 hour), ephemeral auth key via Tailscale API
-3. Ephemeral key is injected into bastion cloud-init for secure, one-time use
+3. Action injects the ephemeral key into bastion cloud-init for secure, one-time use
 4. Bastion automatically removed from Tailscale when destroyed
 
 **Benefits:**
 
--   ✅ No static auth keys to manage or rotate
--   ✅ Automatic cleanup of bastion devices from Tailscale
--   ✅ Short-lived credentials (1 hour expiry)
--   ✅ Ephemeral devices don't persist in your tailnet
--   ✅ Follows Tailscale security best practices
+- ✅ No static auth keys to manage or rotate
+- ✅ Automatic cleanup of bastion devices from Tailscale
+- ✅ Short-lived credentials (1 hour expiry)
+- ✅ Ephemeral devices don't persist in your tailnet
+- ✅ Follows Tailscale security best practices
 
-**Option 2: Direct OAuth (GitHub Runner Only)**
+**Option 2: Direct OAuth (GitHub Runner)**
 
-OAuth can be used directly for the GitHub runner, but requires a static auth key for the bastion:
+The GitHub runner can authenticate with OAuth directly, but the bastion still requires a static auth key:
 
 | Input                          | Description                                        |
 | ------------------------------ | -------------------------------------------------- |
@@ -208,7 +213,7 @@ OAuth can be used directly for the GitHub runner, but requires a static auth key
 | `tailscale_auth_key`           | Static auth key for bastion host                   |
 | `tailscale_use_ephemeral_keys` | Set to `false` to disable ephemeral key generation |
 
-**Option 3: Auth Key Only (Legacy)**
+**Option 3: Auth Key (Legacy)**
 
 Both runner and bastion use the same static auth key:
 
@@ -250,21 +255,21 @@ Configure these secrets in your GitHub repository:
 
 #### Required Secrets
 
--   `OPENSTACK_AUTH_URL`: OpenStack authentication endpoint
--   `OPENSTACK_PROJECT_ID`: OpenStack project/tenant ID
--   `OPENSTACK_USERNAME`: OpenStack username
--   `OPENSTACK_PASSWORD` or `OPENSTACK_PASSWORD_B64`: OpenStack password (plain or base64 encoded)
+- `OPENSTACK_AUTH_URL`: OpenStack authentication endpoint
+- `OPENSTACK_PROJECT_ID`: OpenStack project/tenant ID
+- `OPENSTACK_USERNAME`: OpenStack username
+- `OPENSTACK_PASSWORD` or `OPENSTACK_PASSWORD_B64`: OpenStack password (plain or base64 encoded)
 
 #### Tailscale Secrets (choose one method)
 
 **OAuth Method (Recommended)**
 
--   `TAILSCALE_OAUTH_CLIENT_ID`: OAuth client ID
--   `TAILSCALE_OAUTH_SECRET`: OAuth client secret
+- `TAILSCALE_OAUTH_CLIENT_ID`: OAuth client ID
+- `TAILSCALE_OAUTH_SECRET`: OAuth client secret
 
 **Auth Key Method (Legacy)**
 
--   `TAILSCALE_AUTH_KEY`: Authentication key
+- `TAILSCALE_AUTH_KEY`: Authentication key
 
 ### Tailscale ACL Configuration
 
@@ -389,15 +394,18 @@ gh workflow run test-error-handling.yaml -f test_scenario=network_error
 
 The test suite validates:
 
--   ✅ Bastion host creation and initialization
--   ✅ Tailscale network connectivity (OAuth and auth key methods)
--   ✅ SSH connectivity and command execution
--   ✅ Network connectivity from bastion
--   ✅ Proper cleanup and resource deletion
--   ✅ Timeout handling and auto-cleanup
--   ✅ Error handling for invalid credentials
--   ✅ Graceful failure scenarios
+- ✅ Bastion host creation and initialization
+- ✅ Tailscale network connectivity (OAuth and auth key methods)
+- ✅ SSH connectivity and command execution
+- ✅ Network connectivity from bastion
+- ✅ Proper cleanup and resource deletion
+- ✅ Timeout handling and auto-cleanup
+- ✅ Error handling for invalid credentials
+- ✅ Graceful failure scenarios
 
 ## Support
 
 For issues, questions, or contributions, please open an issue in the repository.
+
+[pre-commit.ci results page]: https://results.pre-commit.ci/latest/github/askb/tailscale-openstack-bastion-action/main
+[pre-commit.ci status badge]: https://results.pre-commit.ci/badge/github/askb/tailscale-openstack-bastion-action/main.svg

@@ -18,18 +18,18 @@ package_upgrade: true
 timezone: UTC
 ```
 
--   Sets hostname to unique bastion name (e.g., `bastion-gh-12345`)
--   Updates package lists and upgrades system packages
--   Configures UTC timezone
+- Sets hostname to unique bastion name (e.g., `bastion-gh-12345`)
+- Updates package lists and upgrades system packages
+- Configures UTC timezone
 
 ### Package Installation
 
 Essential packages installed:
 
--   **Utilities:** curl, wget, jq, unzip, git
--   **Network tools:** netcat, net-tools, iputils-ping, traceroute
--   **Security:** apt-transport-https, ca-certificates, gnupg
--   **Build tools:** build-essential, python3, python3-pip
+- **Utilities:** curl, wget, jq, unzip, git
+- **Network tools:** netcat, net-tools, iputils-ping, traceroute
+- **Security:** apt-transport-https, ca-certificates, gnupg
+- **Build tools:** build-essential, python3, python3-pip
 
 ### System Files
 
@@ -70,8 +70,8 @@ users:
       lock_passwd: true
 ```
 
--   Creates/configures ubuntu user with passwordless sudo
--   Locks password (SSH key auth only)
+- Creates/configures ubuntu user with passwordless sudo
+- Locks password (SSH key auth only)
 
 ### SSH Configuration
 
@@ -80,8 +80,8 @@ ssh_pwauth: false
 disable_root: false
 ```
 
--   Disables password authentication (key-based only)
--   Allows root login (for Tailscale SSH)
+- Disables password authentication (key-based only)
+- Allows root login (for Tailscale SSH)
 
 ### Run Commands
 
@@ -164,20 +164,20 @@ tailscale up \
 
 Options:
 
--   `--authkey`: Pre-authorized reusable key
--   `--hostname`: Unique identifier
--   `--advertise-tags`: Tag as bastion for ACLs
--   `--ssh`: Enable Tailscale SSH (no keys needed)
--   `--accept-routes`: Accept subnet routes
--   `--accept-dns=false`: Don't override DNS
+- `--authkey`: Pre-authorized reusable key
+- `--hostname`: Unique identifier
+- `--advertise-tags`: Tag as bastion for ACLs
+- `--ssh`: Enable Tailscale SSH (no keys needed)
+- `--accept-routes`: Accept subnet routes
+- `--accept-dns=false`: Don't override DNS
 
 ### Network Features
 
 With IP forwarding enabled, the bastion can:
 
--   Route traffic to OpenStack internal network
--   Act as SSH jump host for Packer builds
--   Forward connections to build target instances
+- Route traffic to OpenStack internal network
+- Act as SSH jump host for Packer builds
+- Forward connections to build target instances
 
 ## Troubleshooting
 
@@ -233,9 +233,9 @@ ssh root@<bastion-ip> "journalctl -u tailscaled"
 
 **Solution:**
 
--   Verify auth key is not expired
--   Check key is reusable and pre-authorized
--   Regenerate key in Tailscale admin
+- Verify auth key is not expired
+- Check key is reusable and pre-authorized
+- Regenerate key in Tailscale admin
 
 ## Customization
 
@@ -299,23 +299,23 @@ If `templates/bastion-cloud-init.yaml` is not present, the workflow uses an inli
 
 ### SSH Access
 
--   Password authentication disabled
--   Root login allowed (via Tailscale SSH only)
--   No SSH keys stored in cloud-init
--   Tailscale handles authentication
+- Password authentication disabled
+- Root login allowed (via Tailscale SSH only)
+- No SSH keys stored in cloud-init
+- Tailscale handles authentication
 
 ### Network Security
 
--   Bastion only accessible via Tailscale VPN
--   No public IP required
--   IP forwarding restricted to Tailscale network
--   Connection tracking limits prevent abuse
+- Bastion only accessible via Tailscale VPN
+- No public IP required
+- IP forwarding restricted to Tailscale network
+- Connection tracking limits prevent abuse
 
 ### Secrets Management
 
--   Tailscale auth key passed via environment variable
--   Not logged or stored on disk
--   Ephemeral instance (auto-deleted)
+- Tailscale auth key passed via environment variable
+- Not logged or stored on disk
+- Ephemeral instance (auto-deleted)
 
 ## Testing
 
@@ -357,17 +357,17 @@ openstack server delete test-bastion
 
 ## References
 
--   [Cloud-Init Documentation](https://cloudinit.readthedocs.io/)
--   [Tailscale Installation](https://tailscale.com/kb/1031/install-linux/)
--   [OpenStack User Data](https://docs.openstack.org/nova/latest/user/user-data.html)
--   [Bastion Host Best Practices](https://tailscale.com/kb/1080/bastion/)
+- [Cloud-Init Documentation](https://cloudinit.readthedocs.io/)
+- [Tailscale Installation](https://tailscale.com/kb/1031/install-linux/)
+- [OpenStack User Data](https://docs.openstack.org/nova/latest/user/user-data.html)
+- [Bastion Host Best Practices](https://tailscale.com/kb/1080/bastion/)
 
 ## Change Log
 
 ### Version 1.0 (Current)
 
--   Initial cloud-init configuration
--   Tailscale integration
--   Network forwarding setup
--   Ready marker implementation
--   Comprehensive logging
+- Initial cloud-init configuration
+- Tailscale integration
+- Network forwarding setup
+- Ready marker implementation
+- Comprehensive logging

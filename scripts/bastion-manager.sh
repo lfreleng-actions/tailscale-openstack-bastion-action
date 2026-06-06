@@ -71,6 +71,7 @@ set_output() {
 }
 
 # Cleanup function - called on exit
+# shellcheck disable=SC2329  # invoked via trap on EXIT
 cleanup_on_failure() {
     local exit_code=$?
     if [[ $exit_code -ne 0 && "${MODE}" == "setup" ]]; then

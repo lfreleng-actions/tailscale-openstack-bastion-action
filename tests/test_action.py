@@ -16,30 +16,30 @@ def test_action_yaml_exists():
 def test_action_yaml_valid():
     """Test that action.yaml is valid YAML."""
     action_path = Path(__file__).parent.parent / "action.yaml"
-    with open(action_path, 'r') as f:
+    with open(action_path, "r") as f:
         data = yaml.safe_load(f)
 
     assert isinstance(data, dict), "action.yaml should contain a dictionary"
-    assert 'name' in data, "action.yaml should have a name field"
-    assert 'description' in data, "action.yaml should have a description field"
-    assert 'inputs' in data, "action.yaml should have inputs field"
-    assert 'runs' in data, "action.yaml should have runs field"
+    assert "name" in data, "action.yaml should have a name field"
+    assert "description" in data, "action.yaml should have a description field"
+    assert "inputs" in data, "action.yaml should have inputs field"
+    assert "runs" in data, "action.yaml should have runs field"
 
 
 def test_action_has_required_inputs():
     """Test that action.yaml has required inputs."""
     action_path = Path(__file__).parent.parent / "action.yaml"
-    with open(action_path, 'r') as f:
+    with open(action_path, "r") as f:
         data = yaml.safe_load(f)
 
-    inputs = data.get('inputs', {})
+    inputs = data.get("inputs", {})
 
     # Check for essential inputs
     required_inputs = [
-        'operation',
-        'openstack_auth_url',
-        'openstack_project_id',
-        'openstack_region',
+        "operation",
+        "openstack_auth_url",
+        "openstack_project_id",
+        "openstack_region",
     ]
 
     for input_name in required_inputs:
