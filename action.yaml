@@ -137,18 +137,22 @@ runs:
     - name: Validate Tailscale credentials
       if: inputs.operation == 'setup'
       shell: bash
+      env:
+        TS_OAUTH_CLIENT_ID: ${{ inputs.tailscale_oauth_client_id }}
+        TS_OAUTH_SECRET: ${{ inputs.tailscale_oauth_secret }}
+        TS_AUTH_KEY: ${{ inputs.tailscale_auth_key }}
       run: |
-        if [[ -z "${{ inputs.tailscale_oauth_client_id }}" ]] && [[ -z "${{ inputs.tailscale_auth_key }}" ]]; then
+        if [[ -z "$TS_OAUTH_CLIENT_ID" ]] && [[ -z "$TS_OAUTH_SECRET" ]] && [[ -z "$TS_AUTH_KEY" ]]; then
           echo "❌ Error: Either tailscale_oauth_client_id+tailscale_oauth_secret OR tailscale_auth_key must be provided for setup"
           exit 1
         fi
 
-        if [[ -n "${{ inputs.tailscale_oauth_client_id }}" ]] && [[ -z "${{ inputs.tailscale_oauth_secret }}" ]]; then
+        if [[ -n "$TS_OAUTH_CLIENT_ID" ]] && [[ -z "$TS_OAUTH_SECRET" ]]; then
           echo "❌ Error: tailscale_oauth_secret is required when tailscale_oauth_client_id is provided"
           exit 1
         fi
 
-        if [[ -n "${{ inputs.tailscale_oauth_secret }}" ]] && [[ -z "${{ inputs.tailscale_oauth_client_id }}" ]]; then
+        if [[ -n "$TS_OAUTH_SECRET" ]] && [[ -z "$TS_OAUTH_CLIENT_ID" ]]; then
           echo "❌ Error: tailscale_oauth_client_id is required when tailscale_oauth_secret is provided"
           exit 1
         fi
