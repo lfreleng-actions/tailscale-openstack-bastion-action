@@ -118,7 +118,7 @@ jobs:
             # Setup bastion
             - name: Setup bastion
               id: bastion
-              uses: lfreleng-actions/openstack-bastion-action@v1
+              uses: lfreleng-actions/tailscale-openstack-bastion-action@6215d35becaf155eb6c523f339ce7f2647b69812 # main
               with:
                   operation: setup
                   openstack_auth_url: ${{ secrets.OPENSTACK_AUTH_URL }}
@@ -137,7 +137,7 @@ jobs:
             # Always cleanup
             - name: Cleanup bastion
               if: always()
-              uses: lfreleng-actions/openstack-bastion-action@v1
+              uses: lfreleng-actions/tailscale-openstack-bastion-action@6215d35becaf155eb6c523f339ce7f2647b69812 # main
               with:
                   operation: teardown
                   bastion_name: ${{ steps.bastion.outputs.bastion_name }}
@@ -151,7 +151,7 @@ jobs:
 
 ```yaml
 - name: Setup bastion with custom settings
-  uses: lfreleng-actions/openstack-bastion-action@v1
+  uses: lfreleng-actions/tailscale-openstack-bastion-action@6215d35becaf155eb6c523f339ce7f2647b69812 # main
   with:
       operation: setup
       bastion_flavor: v3-standard-4

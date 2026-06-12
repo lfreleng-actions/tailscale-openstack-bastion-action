@@ -143,7 +143,7 @@ Add these secrets:
 **Option 1: OAuth with Ephemeral Keys (Recommended)**
 
 ```yaml
-- uses: lfreleng-actions/openstack-bastion-action@v1
+- uses: lfreleng-actions/tailscale-openstack-bastion-action@6215d35becaf155eb6c523f339ce7f2647b69812 # main
   with:
       operation: setup
       tailscale_oauth_client_id: ${{ secrets.TAILSCALE_OAUTH_CLIENT_ID }}
@@ -163,7 +163,7 @@ The action will:
 **Option 2: OAuth for Runner + Static Auth Key for Bastion**
 
 ```yaml
-- uses: lfreleng-actions/openstack-bastion-action@v1
+- uses: lfreleng-actions/tailscale-openstack-bastion-action@6215d35becaf155eb6c523f339ce7f2647b69812 # main
   with:
       operation: setup
       tailscale_oauth_client_id: ${{ secrets.TAILSCALE_OAUTH_CLIENT_ID }}

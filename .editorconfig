@@ -1,31 +1,23 @@
 # SPDX-License-Identifier: Apache-2.0
 # SPDX-FileCopyrightText: 2025 The Linux Foundation
 
-# EditorConfig helps maintain consistent coding styles
-# https://editorconfig.org
-
 root = true
 
 [*]
-charset = utf-8
 end_of_line = lf
 insert_final_newline = true
 trim_trailing_whitespace = true
 indent_style = space
+indent_size = 4
+
+[*.{json,yaml,yml}]
 indent_size = 2
+
+[*.{md,markdown}]
+max_line_length = 80
 
 [*.py]
-indent_size = 4
-
-[*.md]
-trim_trailing_whitespace = false
-indent_size = 4
-
-[*.{yaml,yml}]
-indent_size = 2
-
-[Makefile]
-indent_style = tab
+max_line_length = 120
 
 [*.sh]
-indent_size = 4
+max_line_length = 80

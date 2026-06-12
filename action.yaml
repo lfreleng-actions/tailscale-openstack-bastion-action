@@ -116,7 +116,7 @@ runs:
     # ========================================
     - name: Setup Tailscale VPN (OAuth)
       if: inputs.operation == 'setup' && inputs.tailscale_oauth_client_id != '' && inputs.tailscale_oauth_secret != ''
-      uses: tailscale/github-action@6cae46e2d796f265265cfcf628b72a32b4d7cade # v3.3.0
+      uses: tailscale/github-action@306e68a486fd2350f2bfc3b19fcd143891a4a2d8 # v4.1.2
       with:
         oauth-client-id: ${{ inputs.tailscale_oauth_client_id }}
         oauth-secret: ${{ inputs.tailscale_oauth_secret }}
@@ -127,7 +127,7 @@ runs:
 
     - name: Setup Tailscale VPN (Auth Key - Legacy)
       if: inputs.operation == 'setup' && (inputs.tailscale_oauth_client_id == '' || inputs.tailscale_oauth_secret == '') && inputs.tailscale_auth_key != ''
-      uses: tailscale/github-action@6cae46e2d796f265265cfcf628b72a32b4d7cade # v3.3.0
+      uses: tailscale/github-action@306e68a486fd2350f2bfc3b19fcd143891a4a2d8 # v4.1.2
       with:
         authkey: ${{ inputs.tailscale_auth_key }}
         version: ${{ inputs.tailscale_version }}
@@ -137,18 +137,22 @@ runs:
     - name: Validate Tailscale credentials
       if: inputs.operation == 'setup'
       shell: bash
+      env:
+        TS_OAUTH_CLIENT_ID: ${{ inputs.tailscale_oauth_client_id }}
+        TS_OAUTH_SECRET: ${{ inputs.tailscale_oauth_secret }}
+        TS_AUTH_KEY: ${{ inputs.tailscale_auth_key }}
       run: |
-        if [[ -z "${{ inputs.tailscale_oauth_client_id }}" ]] && [[ -z "${{ inputs.tailscale_auth_key }}" ]]; then
+        if [[ -z "$TS_OAUTH_CLIENT_ID" ]] && [[ -z "$TS_OAUTH_SECRET" ]] && [[ -z "$TS_AUTH_KEY" ]]; then
           echo "❌ Error: Either tailscale_oauth_client_id+tailscale_oauth_secret OR tailscale_auth_key must be provided for setup"
           exit 1
         fi
 
-        if [[ -n "${{ inputs.tailscale_oauth_client_id }}" ]] && [[ -z "${{ inputs.tailscale_oauth_secret }}" ]]; then
+        if [[ -n "$TS_OAUTH_CLIENT_ID" ]] && [[ -z "$TS_OAUTH_SECRET" ]]; then
           echo "❌ Error: tailscale_oauth_secret is required when tailscale_oauth_client_id is provided"
           exit 1
         fi
 
-        if [[ -n "${{ inputs.tailscale_oauth_secret }}" ]] && [[ -z "${{ inputs.tailscale_oauth_client_id }}" ]]; then
+        if [[ -n "$TS_OAUTH_SECRET" ]] && [[ -z "$TS_OAUTH_CLIENT_ID" ]]; then
           echo "❌ Error: tailscale_oauth_client_id is required when tailscale_oauth_secret is provided"
           exit 1
         fi
