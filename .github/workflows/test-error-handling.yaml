@@ -25,6 +25,9 @@ concurrency:
 env:
   BASTION_NAME: "test-error-bastion-${{ github.run_id }}"
 
+permissions:
+  contents: read
+
 jobs:
   test-timeout-scenario:
     name: Test Timeout Scenario

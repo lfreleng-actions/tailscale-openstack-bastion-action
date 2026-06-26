@@ -8,8 +8,15 @@ name: Test Bastion Setup and Teardown
 on:
   push:
     branches: [main, master]
-  pull_request:
+  # Fork PRs cannot access OpenStack/Tailscale secrets, so this suite is
+  # shown but skipped on them by default. A maintainer can opt a fork PR
+  # in by applying the 'safe to test' label: the entry job then runs via
+  # the 'integration' environment (required reviewers), with the checkout
+  # pinned to the PR head SHA. The workflow definition is always taken
+  # from the base branch; untrusted PR code only executes after approval.
+  pull_request_target:  # zizmor: ignore[dangerous-triggers]
     branches: [main, master]
+    types: [opened, synchronize, reopened, labeled]
   workflow_dispatch:
     inputs:
       bastion_flavor:
@@ -34,23 +41,38 @@ on:
         default: false
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  # Use a per-PR key for pull_request_target runs (github.ref is the base
+  # branch ref under that event, so it would otherwise collide across PRs);
+  # fall back to github.ref for push and workflow_dispatch.
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 env:
   BASTION_NAME: "test-bastion-${{ github.run_id }}"
   BASTION_WAIT_TIMEOUT: 300
 
+permissions:
+  contents: read
+
 jobs:
   test-bastion-setup:
     name: Test Bastion Setup with OAuth
-    # Skip on fork PRs (no access to OpenStack/Tailscale secrets); still
-    # runs on push to the default branch, workflow_dispatch, and
-    # same-repo PRs where secrets are available.
+    # Runs on push, workflow_dispatch, and same-repo PRs automatically.
+    # Fork PRs run only when a maintainer adds the 'safe to test' label
+    # (otherwise the job is shown but skipped). This entry job is the
+    # approval gate; downstream jobs cannot start until it succeeds.
     if: >-
       github.event_name == 'push' ||
       github.event_name == 'workflow_dispatch' ||
-      github.event.pull_request.head.repo.full_name == github.repository
+      (github.event_name == 'pull_request_target' &&
+       (github.event.pull_request.head.repo.full_name == github.repository ||
+        contains(github.event.pull_request.labels.*.name, 'safe to test')))
+    # Gate fork-PR runs behind the 'integration' environment (required
+    # reviewers). Trusted events (push, dispatch, same-repo PRs) use the
+    # unprotected 'integration-auto' environment, which has no reviewers
+    # and runs without delay.
+    # yamllint disable-line rule:line-length
+    environment: ${{ (github.event_name == 'pull_request_target' && github.event.pull_request.head.repo.full_name != github.repository) && 'integration' || 'integration-auto' }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     outputs:
@@ -65,6 +87,11 @@ jobs:
 
       - name: Checkout code
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          # For fork PRs this is the (reviewer-approved) PR head; for push
+          # and same-repo events it falls back to the triggering SHA.
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
 
       - name: Setup Tailscale on Runner
         uses: tailscale/github-action@306e68a486fd2350f2bfc3b19fcd143891a4a2d8 # v4.1.2
@@ -138,6 +165,9 @@ jobs:
 
       - name: Checkout code
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
 
       - name: Setup Tailscale on Runner
         uses: tailscale/github-action@306e68a486fd2350f2bfc3b19fcd143891a4a2d8 # v4.1.2
@@ -229,11 +259,15 @@ jobs:
     needs: [test-bastion-setup, test-bastion-connectivity]
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    # Transitively gated: needs the (approved) entry job. The event guard
+    # mirrors the entry job so unlabelled fork PRs skip teardown too.
     if: >-
       always() &&
       (github.event_name == 'push' ||
-      github.event_name == 'workflow_dispatch' ||
-      github.event.pull_request.head.repo.full_name == github.repository)
+       github.event_name == 'workflow_dispatch' ||
+       (github.event_name == 'pull_request_target' &&
+        (github.event.pull_request.head.repo.full_name == github.repository ||
+         contains(github.event.pull_request.labels.*.name, 'safe to test'))))
 
     steps:
       - name: Harden the runner
@@ -243,6 +277,9 @@ jobs:
 
       - name: Checkout code
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
 
       - name: Setup Tailscale on Runner
         uses: tailscale/github-action@306e68a486fd2350f2bfc3b19fcd143891a4a2d8 # v4.1.2
@@ -266,6 +303,13 @@ jobs:
           debug_mode: ${{ inputs.debug_mode || 'false' }}
 
       - name: Verify Bastion Cleanup
+        env:
+          OS_AUTH_URL: ${{ secrets.OPENSTACK_AUTH_URL }}
+          OS_PROJECT_ID: ${{ secrets.OPENSTACK_PROJECT_ID }}
+          OS_USERNAME: ${{ secrets.OPENSTACK_USERNAME }}
+          OPENSTACK_PASSWORD_B64: ${{ secrets.OPENSTACK_PASSWORD_B64 }}
+          OS_REGION_NAME: ${{ secrets.OPENSTACK_REGION }}
+          BASTION_NAME_CHECK: ${{ needs.test-bastion-setup.outputs.bastion_name }}
         run: |
           echo "Verifying bastion cleanup..."
 
@@ -274,27 +318,24 @@ jobs:
           pip install python-openstackclient
 
           # Configure OpenStack credentials
-          export OS_AUTH_URL="${{ secrets.OPENSTACK_AUTH_URL }}"
-          export OS_PROJECT_ID="${{ secrets.OPENSTACK_PROJECT_ID }}"
-          export OS_USERNAME="${{ secrets.OPENSTACK_USERNAME }}"
-          PASSWORD_B64="${{ secrets.OPENSTACK_PASSWORD_B64 }}"
           export OS_PASSWORD
-          OS_PASSWORD=$(echo "${PASSWORD_B64}" | base64 -d)
-          export OS_REGION_NAME="${{ secrets.OPENSTACK_REGION }}"
+          OS_PASSWORD=$(printf '%s' "${OPENSTACK_PASSWORD_B64}" | base64 -d)
           export OS_IDENTITY_API_VERSION="3"
           export OS_USER_DOMAIN_NAME="Default"
           export OS_PROJECT_DOMAIN_NAME="Default"
 
           # Check if bastion instance still exists
-          if openstack server show "${{ needs.test-bastion-setup.outputs.bastion_name }}" &>/dev/null; then
+          if openstack server show "${BASTION_NAME_CHECK}" &>/dev/null; then
             echo "❌ ERROR: Bastion instance still exists after teardown"
-            openstack server show "${{ needs.test-bastion-setup.outputs.bastion_name }}"
+            openstack server show "${BASTION_NAME_CHECK}"
             exit 1
           else
             echo "✅ Bastion instance successfully deleted"
           fi
 
       - name: Verify Tailscale Cleanup
+        env:
+          BASTION_NAME_CHECK: ${{ needs.test-bastion-setup.outputs.bastion_name }}
         run: |
           echo "Verifying Tailscale cleanup..."
 
@@ -302,9 +343,9 @@ jobs:
           sleep 10
 
           # Check if bastion is still in Tailscale network
-          if sudo tailscale status | grep -q "${{ needs.test-bastion-setup.outputs.bastion_name }}"; then
+          if sudo tailscale status | grep -q "${BASTION_NAME_CHECK}"; then
             echo "⚠️ WARNING: Bastion still appears in Tailscale network (may take time to update)"
-            sudo tailscale status | grep "${{ needs.test-bastion-setup.outputs.bastion_name }}"
+            sudo tailscale status | grep "${BASTION_NAME_CHECK}"
           else
             echo "✅ Bastion removed from Tailscale network"
           fi
@@ -315,7 +356,15 @@ jobs:
       [test-bastion-setup, test-bastion-connectivity, test-bastion-teardown]
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    if: always()
+    # Always run (to summarise results) but only for trusted events and
+    # labeled fork PRs; unlabeled fork PRs skip the whole workflow.
+    if: >-
+      always() &&
+      (github.event_name == 'push' ||
+       github.event_name == 'workflow_dispatch' ||
+       (github.event_name == 'pull_request_target' &&
+        (github.event.pull_request.head.repo.full_name == github.repository ||
+         contains(github.event.pull_request.labels.*.name, 'safe to test'))))
 
     steps:
       - name: Harden the runner
@@ -324,35 +373,43 @@ jobs:
           egress-policy: audit
 
       - name: Generate Test Summary
+        env:
+          WORKFLOW_NAME: "${{ github.workflow }}"
+          RUN_ID: "${{ github.run_id }}"
+          EVENT_NAME: "${{ github.event_name }}"
+          REF_NAME: "${{ github.ref_name }}"
+          SETUP_RESULT: "${{ needs.test-bastion-setup.result }}"
+          CONNECTIVITY_RESULT: "${{ needs.test-bastion-connectivity.result }}"
+          TEARDOWN_RESULT: "${{ needs.test-bastion-teardown.result }}"
         run: |
           {
             echo "## Bastion Action Test Summary"
             echo ""
-            echo "- **Workflow:** ${{ github.workflow }}"
-            echo "- **Run ID:** ${{ github.run_id }}"
-            echo "- **Trigger:** ${{ github.event_name }}"
-            echo "- **Branch:** ${{ github.ref_name }}"
+            echo "- **Workflow:** $WORKFLOW_NAME"
+            echo "- **Run ID:** $RUN_ID"
+            echo "- **Trigger:** $EVENT_NAME"
+            echo "- **Branch:** $REF_NAME"
             echo ""
             echo "### Test Results"
             echo ""
           } >> "$GITHUB_STEP_SUMMARY"
 
           # Setup test result
-          if [ "${{ needs.test-bastion-setup.result }}" == "success" ]; then
+          if [ "$SETUP_RESULT" == "success" ]; then
             echo "- ✅ **Bastion Setup:** Success" >> "$GITHUB_STEP_SUMMARY"
           else
             echo "- ❌ **Bastion Setup:** Failed" >> "$GITHUB_STEP_SUMMARY"
           fi
 
           # Connectivity test result
-          if [ "${{ needs.test-bastion-connectivity.result }}" == "success" ]; then
+          if [ "$CONNECTIVITY_RESULT" == "success" ]; then
             echo "- ✅ **Connectivity Tests:** Success" >> "$GITHUB_STEP_SUMMARY"
           else
             echo "- ❌ **Connectivity Tests:** Failed" >> "$GITHUB_STEP_SUMMARY"
           fi
 
           # Teardown test result
-          if [ "${{ needs.test-bastion-teardown.result }}" == "success" ]; then
+          if [ "$TEARDOWN_RESULT" == "success" ]; then
             echo "- ✅ **Bastion Teardown:** Success" >> "$GITHUB_STEP_SUMMARY"
           else
             echo "- ❌ **Bastion Teardown:** Failed" >> "$GITHUB_STEP_SUMMARY"
@@ -361,9 +418,9 @@ jobs:
           echo "" >> "$GITHUB_STEP_SUMMARY"
 
           # Overall status
-          if [ "${{ needs.test-bastion-setup.result }}" == "success" ] && \
-             [ "${{ needs.test-bastion-connectivity.result }}" == "success" ] && \
-             [ "${{ needs.test-bastion-teardown.result }}" == "success" ]; then
+          if [ "$SETUP_RESULT" == "success" ] && \
+             [ "$CONNECTIVITY_RESULT" == "success" ] && \
+             [ "$TEARDOWN_RESULT" == "success" ]; then
             echo "### ✅ All Tests Passed" >> "$GITHUB_STEP_SUMMARY"
           else
             echo "### ❌ Some Tests Failed" >> "$GITHUB_STEP_SUMMARY"

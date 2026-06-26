@@ -8,8 +8,15 @@ name: Test Bastion with Legacy Auth Key
 on:
   push:
     branches: [main, master]
-  pull_request:
+  # Fork PRs cannot access OpenStack/Tailscale secrets, so this suite is
+  # shown but skipped on them by default. A maintainer can opt a fork PR
+  # in by applying the 'safe to test' label: the entry job then runs via
+  # the 'integration' environment (required reviewers), with the checkout
+  # pinned to the PR head SHA. The workflow definition is always taken
+  # from the base branch; untrusted PR code only executes after approval.
+  pull_request_target:  # zizmor: ignore[dangerous-triggers]
     branches: [main, master]
+    types: [opened, synchronize, reopened, labeled]
   workflow_dispatch:
     inputs:
       debug_mode:
@@ -19,23 +26,37 @@ on:
         default: false
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  # Use a per-PR key for pull_request_target runs (github.ref is the base
+  # branch ref under that event, so it would otherwise collide across PRs);
+  # fall back to github.ref for push and workflow_dispatch.
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 env:
   BASTION_NAME: "test-authkey-bastion-${{ github.run_id }}"
   BASTION_WAIT_TIMEOUT: 300
 
+permissions:
+  contents: read
+
 jobs:
   test-authkey-bastion:
     name: Test Bastion with Auth Key
-    # Skip on fork PRs (no access to OpenStack/Tailscale secrets); still
-    # runs on push to the default branch, workflow_dispatch, and
-    # same-repo PRs where secrets are available.
+    # Runs on push, workflow_dispatch, and same-repo PRs automatically.
+    # Fork PRs run only when a maintainer adds the 'safe to test' label
+    # (otherwise the job is shown but skipped).
     if: >-
       github.event_name == 'push' ||
       github.event_name == 'workflow_dispatch' ||
-      github.event.pull_request.head.repo.full_name == github.repository
+      (github.event_name == 'pull_request_target' &&
+       (github.event.pull_request.head.repo.full_name == github.repository ||
+        contains(github.event.pull_request.labels.*.name, 'safe to test')))
+    # Gate fork-PR runs behind the 'integration' environment (required
+    # reviewers). Trusted events (push, dispatch, same-repo PRs) use the
+    # unprotected 'integration-auto' environment, which has no reviewers
+    # and runs without delay.
+    # yamllint disable-line rule:line-length
+    environment: ${{ (github.event_name == 'pull_request_target' && github.event.pull_request.head.repo.full_name != github.repository) && 'integration' || 'integration-auto' }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
@@ -47,6 +68,11 @@ jobs:
 
       - name: Checkout code
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          # For fork PRs this is the (reviewer-approved) PR head; for push
+          # and same-repo events it falls back to the triggering SHA.
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
 
       - name: Setup Tailscale on Runner (Auth Key)
         uses: tailscale/github-action@306e68a486fd2350f2bfc3b19fcd143891a4a2d8 # v4.1.2
