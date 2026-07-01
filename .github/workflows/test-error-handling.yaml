@@ -87,12 +87,14 @@ jobs:
           echo "=== Checking Timeout Behavior ==="
 
           # The action should have timed out and cleaned up
-          if [ "${{ steps.setup.outcome }}" == "failure" ]; then
+          if [ "${STEPS_SETUP_OUTCOME}" == "failure" ]; then
             echo "✅ Action correctly failed on timeout"
           else
             echo "❌ Action should have timed out"
             exit 1
           fi
+        env:
+          STEPS_SETUP_OUTCOME: ${{ steps.setup.outcome }}
 
       - name: Verify Auto-Cleanup After Timeout
         env:
@@ -185,12 +187,14 @@ jobs:
 
       - name: Verify Error Handling
         run: |
-          if [ "${{ steps.setup.outcome }}" == "failure" ]; then
+          if [ "${STEPS_SETUP_OUTCOME}" == "failure" ]; then
             echo "✅ Action correctly failed with invalid credentials"
           else
             echo "❌ Action should have failed with invalid credentials"
             exit 1
           fi
+        env:
+          STEPS_SETUP_OUTCOME: ${{ steps.setup.outcome }}
 
       - name: Generate Summary
         if: always()
@@ -244,12 +248,14 @@ jobs:
 
       - name: Verify Error Handling
         run: |
-          if [ "${{ steps.setup.outcome }}" == "failure" ]; then
+          if [ "${STEPS_SETUP_OUTCOME}" == "failure" ]; then
             echo "✅ Action correctly failed with missing Tailscale auth"
           else
             echo "❌ Action should have failed with missing Tailscale auth"
             exit 1
           fi
+        env:
+          STEPS_SETUP_OUTCOME: ${{ steps.setup.outcome }}
 
       - name: Generate Summary
         if: always()

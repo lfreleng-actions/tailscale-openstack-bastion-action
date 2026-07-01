@@ -135,21 +135,25 @@ jobs:
       - name: Verify Bastion Output
         run: |
           echo "=== Bastion Information ==="
-          echo "Bastion IP: ${{ steps.setup.outputs.bastion_ip }}"
-          echo "Bastion Name: ${{ steps.setup.outputs.bastion_name }}"
-          echo "Status: ${{ steps.setup.outputs.status }}"
+          echo "Bastion IP: ${STEPS_SETUP_OUTPUTS_BASTION_IP}"
+          echo "Bastion Name: ${STEPS_SETUP_OUTPUTS_BASTION_NAME}"
+          echo "Status: ${STEPS_SETUP_OUTPUTS_STATUS}"
 
-          if [ -z "${{ steps.setup.outputs.bastion_ip }}" ]; then
+          if [ -z "${STEPS_SETUP_OUTPUTS_BASTION_IP}" ]; then
             echo "❌ ERROR: Bastion IP is empty"
             exit 1
           fi
 
-          if [ -z "${{ steps.setup.outputs.bastion_name }}" ]; then
+          if [ -z "${STEPS_SETUP_OUTPUTS_BASTION_NAME}" ]; then
             echo "❌ ERROR: Bastion name is empty"
             exit 1
           fi
 
           echo "✅ Bastion outputs are valid"
+        env:
+          STEPS_SETUP_OUTPUTS_BASTION_IP: ${{ steps.setup.outputs.bastion_ip }}
+          STEPS_SETUP_OUTPUTS_BASTION_NAME: ${{ steps.setup.outputs.bastion_name }}
+          STEPS_SETUP_OUTPUTS_STATUS: ${{ steps.setup.outputs.status }}
 
   test-bastion-connectivity:
     name: Test Bastion Connectivity
@@ -190,9 +194,9 @@ jobs:
           INTERVAL=5
 
           while [ "$ELAPSED" -lt "$TIMEOUT" ]; do
-            if sudo tailscale status | grep -q "${{ needs.test-bastion-setup.outputs.bastion_name }}"; then
+            if sudo tailscale status | grep -qF -- "${NEEDS_TEST_BASTION_SETUP_OUTPUTS_BASTION_NAME}"; then
               echo "✅ Bastion found in Tailscale network"
-              sudo tailscale status | grep "${{ needs.test-bastion-setup.outputs.bastion_name }}"
+              sudo tailscale status | grep -F -- "${NEEDS_TEST_BASTION_SETUP_OUTPUTS_BASTION_NAME}"
               exit 0
             fi
             echo "Waiting... ($ELAPSED/$TIMEOUT seconds)"
@@ -203,11 +207,13 @@ jobs:
           echo "❌ Timeout: Bastion not found in Tailscale network"
           sudo tailscale status
           exit 1
+        env:
+          NEEDS_TEST_BASTION_SETUP_OUTPUTS_BASTION_NAME: ${{ needs.test-bastion-setup.outputs.bastion_name }}
 
       - name: Test SSH Connectivity
         run: |
           echo "Testing SSH connectivity to bastion..."
-          BASTION_IP="${{ needs.test-bastion-setup.outputs.bastion_ip }}"
+          BASTION_IP="${NEEDS_TEST_BASTION_SETUP_OUTPUTS_BASTION_IP}"
 
           if ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 \
                  root@"${BASTION_IP}" "echo 'SSH connection successful'" 2>/dev/null; then
@@ -216,10 +222,12 @@ jobs:
             echo "❌ SSH connection failed"
             exit 1
           fi
+        env:
+          NEEDS_TEST_BASTION_SETUP_OUTPUTS_BASTION_IP: ${{ needs.test-bastion-setup.outputs.bastion_ip }}
 
       - name: Test Bastion Commands
         run: |
-          BASTION_IP="${{ needs.test-bastion-setup.outputs.bastion_ip }}"
+          BASTION_IP="${NEEDS_TEST_BASTION_SETUP_OUTPUTS_BASTION_IP}"
 
           echo "=== Running diagnostic commands on bastion ==="
 
@@ -236,10 +244,12 @@ jobs:
           ssh -o StrictHostKeyChecking=no root@"${BASTION_IP}" "cat /tmp/bastion-ready"
 
           echo "✅ All diagnostic commands executed successfully"
+        env:
+          NEEDS_TEST_BASTION_SETUP_OUTPUTS_BASTION_IP: ${{ needs.test-bastion-setup.outputs.bastion_ip }}
 
       - name: Test Network Connectivity from Bastion
         run: |
-          BASTION_IP="${{ needs.test-bastion-setup.outputs.bastion_ip }}"
+          BASTION_IP="${NEEDS_TEST_BASTION_SETUP_OUTPUTS_BASTION_IP}"
 
           echo "Testing network connectivity from bastion..."
 
@@ -257,6 +267,8 @@ jobs:
           ssh -o StrictHostKeyChecking=no root@"${BASTION_IP}" "ping -c 3 ${RUNNER_IP}"
 
           echo "✅ Network connectivity tests passed"
+        env:
+          NEEDS_TEST_BASTION_SETUP_OUTPUTS_BASTION_IP: ${{ needs.test-bastion-setup.outputs.bastion_ip }}
 
   test-bastion-teardown:
     name: Test Bastion Teardown
@@ -351,9 +363,9 @@ jobs:
           sleep 10
 
           # Check if bastion is still in Tailscale network
-          if sudo tailscale status | grep -q "${BASTION_NAME_CHECK}"; then
+          if sudo tailscale status | grep -qF -- "${BASTION_NAME_CHECK}"; then
             echo "⚠️ WARNING: Bastion still appears in Tailscale network (may take time to update)"
-            sudo tailscale status | grep "${BASTION_NAME_CHECK}"
+            sudo tailscale status | grep -F -- "${BASTION_NAME_CHECK}"
           else
             echo "✅ Bastion removed from Tailscale network"
           fi

@@ -111,19 +111,22 @@ jobs:
       - name: Verify Bastion Setup
         run: |
           echo "=== Bastion Information ==="
-          echo "Bastion IP: ${{ steps.setup.outputs.bastion_ip }}"
-          echo "Bastion Name: ${{ steps.setup.outputs.bastion_name }}"
+          echo "Bastion IP: ${STEPS_SETUP_OUTPUTS_BASTION_IP}"
+          echo "Bastion Name: ${STEPS_SETUP_OUTPUTS_BASTION_NAME}"
 
-          if [ -z "${{ steps.setup.outputs.bastion_ip }}" ]; then
+          if [ -z "${STEPS_SETUP_OUTPUTS_BASTION_IP}" ]; then
             echo "❌ ERROR: Bastion IP is empty"
             exit 1
           fi
 
           echo "✅ Bastion setup with auth key successful"
+        env:
+          STEPS_SETUP_OUTPUTS_BASTION_IP: ${{ steps.setup.outputs.bastion_ip }}
+          STEPS_SETUP_OUTPUTS_BASTION_NAME: ${{ steps.setup.outputs.bastion_name }}
 
       - name: Test SSH Connectivity
         run: |
-          BASTION_IP="${{ steps.setup.outputs.bastion_ip }}"
+          BASTION_IP="${STEPS_SETUP_OUTPUTS_BASTION_IP}"
 
           if ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 \
                  root@"${BASTION_IP}" "echo 'SSH connection successful'" 2>/dev/null; then
@@ -132,6 +135,8 @@ jobs:
             echo "❌ SSH connection failed"
             exit 1
           fi
+        env:
+          STEPS_SETUP_OUTPUTS_BASTION_IP: ${{ steps.setup.outputs.bastion_ip }}
 
       - name: Teardown Bastion
         if: always()
@@ -152,13 +157,16 @@ jobs:
           {
             echo "## Legacy Auth Key Test Summary"
             echo ""
-            echo "- **Bastion Name:** ${{ steps.setup.outputs.bastion_name }}"
-            echo "- **Status:** ${{ job.status }}"
+            echo "- **Bastion Name:** ${STEPS_SETUP_OUTPUTS_BASTION_NAME}"
+            echo "- **Status:** ${JOB_STATUS}"
             echo ""
           } >> "$GITHUB_STEP_SUMMARY"
 
-          if [ "${{ job.status }}" == "success" ]; then
+          if [ "${JOB_STATUS}" == "success" ]; then
             echo "✅ **Result:** Auth key method works correctly" >> "$GITHUB_STEP_SUMMARY"
           else
             echo "❌ **Result:** Auth key method failed" >> "$GITHUB_STEP_SUMMARY"
           fi
+        env:
+          STEPS_SETUP_OUTPUTS_BASTION_NAME: ${{ steps.setup.outputs.bastion_name }}
+          JOB_STATUS: ${{ job.status }}
