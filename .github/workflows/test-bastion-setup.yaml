@@ -4,19 +4,19 @@
 
 name: Test Bastion Setup and Teardown
 
+# This suite provisions real OpenStack and Tailscale resources, so it
+# only ever runs from a trusted ref: post-merge on the default branch,
+# or on manual dispatch. It deliberately does NOT run on pull requests.
+#
+# Running it on 'pull_request_target' would require checking out the PR
+# head while holding the integration secrets -- the "pwn request"
+# pattern. To exercise this suite against an unmerged branch, push the
+# branch to this repository and use the 'Run workflow' button, which
+# takes both the workflow definition and the code from that branch.
 # yamllint disable-line rule:truthy
 on:
   push:
     branches: [main, master]
-  # Fork PRs cannot access OpenStack/Tailscale secrets, so this suite is
-  # shown but skipped on them by default. A maintainer can opt a fork PR
-  # in by applying the 'safe to test' label: the entry job then runs via
-  # the 'integration' environment (required reviewers), with the checkout
-  # pinned to the PR head SHA. The workflow definition is always taken
-  # from the base branch; untrusted PR code only executes after approval.
-  pull_request_target:  # zizmor: ignore[dangerous-triggers]
-    branches: [main, master]
-    types: [opened, synchronize, reopened, labeled]
   workflow_dispatch:
     inputs:
       bastion_flavor:
@@ -41,10 +41,7 @@ on:
         default: false
 
 concurrency:
-  # Use a per-PR key for pull_request_target runs (github.ref is the base
-  # branch ref under that event, so it would otherwise collide across PRs);
-  # fall back to github.ref for push and workflow_dispatch.
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 env:
@@ -57,22 +54,10 @@ permissions:
 jobs:
   test-bastion-setup:
     name: Test Bastion Setup with OAuth
-    # Runs on push, workflow_dispatch, and same-repo PRs automatically.
-    # Fork PRs run only when a maintainer adds the 'safe to test' label
-    # (otherwise the job is shown but skipped). This entry job is the
-    # approval gate; downstream jobs cannot start until it succeeds.
-    if: >-
-      github.event_name == 'push' ||
-      github.event_name == 'workflow_dispatch' ||
-      (github.event_name == 'pull_request_target' &&
-       (github.event.pull_request.head.repo.full_name == github.repository ||
-        contains(github.event.pull_request.labels.*.name, 'safe to test')))
-    # Gate fork-PR runs behind the 'integration' environment (required
-    # reviewers). Trusted events (push, dispatch, same-repo PRs) use the
-    # unprotected 'integration-auto' environment, which has no reviewers
-    # and runs without delay.
-    # yamllint disable-line rule:line-length
-    environment: ${{ (github.event_name == 'pull_request_target' && github.event.pull_request.head.repo.full_name != github.repository) && 'integration' || 'integration-auto' }}
+    # Consumes OpenStack/Tailscale secrets; scoped to a named environment
+    # so access is auditable. Both triggers are trusted, so no reviewer
+    # gate is needed here.
+    environment: integration-auto
     runs-on: ubuntu-latest
     timeout-minutes: 30
     outputs:
@@ -88,9 +73,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          # For fork PRs this is the (reviewer-approved) PR head; for push
-          # and same-repo events it falls back to the triggering SHA.
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
 
       - name: Setup Tailscale on Runner
@@ -159,9 +141,7 @@ jobs:
     name: Test Bastion Connectivity
     needs: test-bastion-setup
     runs-on: ubuntu-latest
-    # Secrets are consumed here; declare a dedicated environment. The fork
-    # approval gate stays on the entry job (via needs), so this uses the
-    # unprotected 'integration-auto' to avoid a redundant second approval.
+    # Secrets are consumed here too; same environment as the entry job.
     environment: integration-auto
     timeout-minutes: 30
 
@@ -174,7 +154,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
 
       - name: Setup Tailscale on Runner
@@ -274,20 +253,12 @@ jobs:
     name: Test Bastion Teardown
     needs: [test-bastion-setup, test-bastion-connectivity]
     runs-on: ubuntu-latest
-    # Secrets are consumed here; declare a dedicated environment. The fork
-    # approval gate stays on the entry job (via needs), so this uses the
-    # unprotected 'integration-auto' to avoid a redundant second approval.
+    # Secrets are consumed here too; same environment as the entry job.
     environment: integration-auto
     timeout-minutes: 30
-    # Transitively gated: needs the (approved) entry job. The event guard
-    # mirrors the entry job so unlabelled fork PRs skip teardown too.
-    if: >-
-      always() &&
-      (github.event_name == 'push' ||
-       github.event_name == 'workflow_dispatch' ||
-       (github.event_name == 'pull_request_target' &&
-        (github.event.pull_request.head.repo.full_name == github.repository ||
-         contains(github.event.pull_request.labels.*.name, 'safe to test'))))
+    # Always attempt teardown, even when setup or connectivity failed, so
+    # a partially created bastion is not left running.
+    if: always()
 
     steps:
       - name: Harden the runner
@@ -298,7 +269,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
 
       - name: Setup Tailscale on Runner
@@ -376,15 +346,8 @@ jobs:
       [test-bastion-setup, test-bastion-connectivity, test-bastion-teardown]
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    # Always run (to summarise results) but only for trusted events and
-    # labeled fork PRs; unlabeled fork PRs skip the whole workflow.
-    if: >-
-      always() &&
-      (github.event_name == 'push' ||
-       github.event_name == 'workflow_dispatch' ||
-       (github.event_name == 'pull_request_target' &&
-        (github.event.pull_request.head.repo.full_name == github.repository ||
-         contains(github.event.pull_request.labels.*.name, 'safe to test'))))
+    # Always run so the summary reflects failures as well as successes.
+    if: always()
 
     steps:
       - name: Harden the runner
