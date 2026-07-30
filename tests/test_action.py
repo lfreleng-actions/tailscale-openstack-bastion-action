@@ -3,8 +3,9 @@
 """Basic tests for action configuration."""
 
 import os
-import yaml
 from pathlib import Path
+
+import yaml
 
 
 def test_action_yaml_exists():
