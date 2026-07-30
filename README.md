@@ -223,6 +223,23 @@ Both runner and bastion use the same static auth key:
 
 **⚠️ Not recommended:** Requires managing static auth keys and manual device cleanup.
 
+### Reusing an existing Tailscale connection
+
+During `setup` the action brings the GitHub runner onto your tailnet
+before it provisions the bastion. If the runner is *already* connected —
+because an earlier step in the same job ran `tailscale/github-action`, for
+example — the action detects the running `tailscaled` and reuses that
+connection instead of installing over it.
+
+This matters because the Tailscale setup action copies fresh binaries into
+`/usr/local/bin`. Doing so while a `tailscaled` from an earlier step is
+running fails with `Text file busy` and aborts the job.
+
+When the action reuses an existing connection, `tailscale_tags` and
+`tailscale_version` do not apply: the runner keeps the tags and version it
+already connected with. This does not affect bastion tagging, which
+`bastion_tailscale_tags` controls separately.
+
 ### Optional Inputs
 
 | Input                  | Description            | Default                                    |
@@ -235,7 +252,7 @@ Both runner and bastion use the same static auth key:
 | `bastion_ssh_key`      | SSH key name           | ``                                         |
 | `bastion_wait_timeout` | Timeout in seconds     | `300`                                      |
 | `bastion_name`         | Custom bastion name    | `bastion-gh-{run_id}`                      |
-| `tailscale_tags`       | Tailscale tags         | `tag:ci`                                   |
+| `tailscale_tags`       | Runner Tailscale tags  | `tag:ci`                                   |
 | `tailscale_version`    | Tailscale version      | `latest`                                   |
 | `debug_mode`           | Enable debug logging   | `false`                                    |
 
