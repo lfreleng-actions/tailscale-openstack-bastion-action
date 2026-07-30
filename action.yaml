@@ -79,7 +79,7 @@ inputs:
     required: false
     default: ""
   tailscale_tags:
-    description: "Comma-separated list of Tailscale tags for the GitHub runner (e.g., 'tag:ci'). Ignored when the runner is already connected to Tailscale"
+    description: "Comma-separated Tailscale tags applied to the GitHub runner (e.g., 'tag:ci') and to OAuth-generated ephemeral auth keys. Runner tagging is skipped when the runner is already connected; auth key tagging always applies"
     required: false
     default: "tag:ci"
   bastion_tailscale_tags:
@@ -130,7 +130,8 @@ runs:
         if pgrep -x tailscaled >/dev/null 2>&1; then
           echo "connected=true" >> "${GITHUB_OUTPUT}"
           echo "ℹ️ Tailscale is already running on this runner; reusing the existing connection"
-          echo "   (the tailscale_tags and tailscale_version inputs do not apply in this case)"
+          echo "   (tailscale_version and the runner half of tailscale_tags do not apply;"
+          echo "    tailscale_tags still tags the bastion's ephemeral auth key)"
         else
           echo "connected=false" >> "${GITHUB_OUTPUT}"
         fi

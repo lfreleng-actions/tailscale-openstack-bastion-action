@@ -235,10 +235,14 @@ This matters because the Tailscale setup action copies fresh binaries into
 `/usr/local/bin`. Doing so while a `tailscaled` from an earlier step is
 running fails with `Text file busy` and aborts the job.
 
-When the action reuses an existing connection, `tailscale_tags` and
-`tailscale_version` do not apply: the runner keeps the tags and version it
-already connected with. This does not affect bastion tagging, which
-`bastion_tailscale_tags` controls separately.
+When the action reuses an existing connection, `tailscale_version` does not
+apply, and `tailscale_tags` no longer tags the runner: the runner keeps the
+version and tags it already connected with.
+
+Note that `tailscale_tags` has a second role that **always** applies. It also
+sets the tags on the OAuth-generated ephemeral auth key that the bastion
+authenticates with, so reusing a runner connection does not change it. The
+tags the bastion itself advertises come from `bastion_tailscale_tags`.
 
 ### Optional Inputs
 
@@ -252,7 +256,7 @@ already connected with. This does not affect bastion tagging, which
 | `bastion_ssh_key`      | SSH key name           | ``                                         |
 | `bastion_wait_timeout` | Timeout in seconds     | `300`                                      |
 | `bastion_name`         | Custom bastion name    | `bastion-gh-{run_id}`                      |
-| `tailscale_tags`       | Runner Tailscale tags  | `tag:ci`                                   |
+| `tailscale_tags`       | Runner + auth key tags | `tag:ci`                                   |
 | `tailscale_version`    | Tailscale version      | `latest`                                   |
 | `debug_mode`           | Enable debug logging   | `false`                                    |
 
