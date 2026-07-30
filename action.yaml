@@ -126,6 +126,7 @@ runs:
         args: --ssh --accept-dns=false
 
     - name: Setup Tailscale VPN (Auth Key - Legacy)
+      # yamllint disable-line rule:line-length
       if: inputs.operation == 'setup' && (inputs.tailscale_oauth_client_id == '' || inputs.tailscale_oauth_secret == '') && inputs.tailscale_auth_key != ''
       uses: tailscale/github-action@780049a30b6ff5c378a9e7b389d15ece7a204888 # v4.1.3
       with:
@@ -141,6 +142,7 @@ runs:
         TS_OAUTH_CLIENT_ID: ${{ inputs.tailscale_oauth_client_id }}
         TS_OAUTH_SECRET: ${{ inputs.tailscale_oauth_secret }}
         TS_AUTH_KEY: ${{ inputs.tailscale_auth_key }}
+      # yamllint disable rule:line-length
       run: |
         if [[ -z "$TS_OAUTH_CLIENT_ID" ]] && [[ -z "$TS_OAUTH_SECRET" ]] && [[ -z "$TS_AUTH_KEY" ]]; then
           echo "❌ Error: Either tailscale_oauth_client_id+tailscale_oauth_secret OR tailscale_auth_key must be provided for setup"
@@ -157,6 +159,7 @@ runs:
           exit 1
         fi
 
+      # yamllint enable rule:line-length
     - name: Verify Tailscale connection
       if: inputs.operation == 'setup'
       shell: bash
@@ -263,6 +266,7 @@ runs:
         BASTION_WAIT_TIMEOUT: ${{ inputs.bastion_wait_timeout }}
         # Workflow context routed via env to avoid template injection
         ACTION_PATH: ${{ github.action_path }}
+      # yamllint disable rule:line-length
       run: |
         set -euo pipefail
 
@@ -298,6 +302,7 @@ runs:
         fi
         exit 1
 
+      # yamllint enable rule:line-length
     - name: Cleanup bastion host
       if: inputs.operation == 'teardown'
       shell: bash
@@ -334,11 +339,13 @@ runs:
       id: operation-status
       shell: bash
       run: |
-        if [[ "${{ job.status }}" == "success" ]]; then
+        if [[ "${JOB_STATUS}" == "success" ]]; then
           echo "status=success" >> "${GITHUB_OUTPUT}"
         else
           echo "status=failure" >> "${GITHUB_OUTPUT}"
         fi
+      env:
+        JOB_STATUS: ${{ job.status }}
 
 branding:
   icon: "cloud"
