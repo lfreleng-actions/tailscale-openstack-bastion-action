@@ -79,7 +79,7 @@ inputs:
     required: false
     default: ""
   tailscale_tags:
-    description: "Comma-separated list of Tailscale tags for the GitHub runner (e.g., 'tag:ci')"
+    description: "Comma-separated Tailscale tags applied to the GitHub runner (e.g., 'tag:ci') and to OAuth-generated ephemeral auth keys. Runner tagging is skipped when the runner is already connected; auth key tagging always applies"
     required: false
     default: "tag:ci"
   bastion_tailscale_tags:
@@ -87,7 +87,7 @@ inputs:
     required: false
     default: "tag:bastion"
   tailscale_version:
-    description: "Tailscale version"
+    description: "Tailscale version. Ignored when the runner is already connected to Tailscale"
     required: false
     default: "latest"
 
@@ -114,8 +114,31 @@ runs:
     # ========================================
     # Setup Operation
     # ========================================
+    - name: Detect existing Tailscale connection
+      if: inputs.operation == 'setup'
+      id: tailscale-state
+      shell: bash
+      run: |
+        # The Tailscale setup action copies fresh binaries into
+        # /usr/local/bin. If a tailscaled started by an earlier step in
+        # this job is already running, that copy fails hard with
+        # "Text file busy" and takes the whole job with it.
+        #
+        # Callers legitimately bring the runner onto the tailnet before
+        # invoking this action, so treat an existing connection as the
+        # one to use rather than trying to replace it.
+        if pgrep -x tailscaled >/dev/null 2>&1; then
+          echo "connected=true" >> "${GITHUB_OUTPUT}"
+          echo "ℹ️ Tailscale is already running on this runner; reusing the existing connection"
+          echo "   (tailscale_version and the runner half of tailscale_tags do not apply;"
+          echo "    tailscale_tags still tags the bastion's ephemeral auth key)"
+        else
+          echo "connected=false" >> "${GITHUB_OUTPUT}"
+        fi
+
     - name: Setup Tailscale VPN (OAuth)
-      if: inputs.operation == 'setup' && inputs.tailscale_oauth_client_id != '' && inputs.tailscale_oauth_secret != ''
+      # yamllint disable-line rule:line-length
+      if: inputs.operation == 'setup' && steps.tailscale-state.outputs.connected != 'true' && inputs.tailscale_oauth_client_id != '' && inputs.tailscale_oauth_secret != ''
       uses: tailscale/github-action@780049a30b6ff5c378a9e7b389d15ece7a204888 # v4.1.3
       with:
         oauth-client-id: ${{ inputs.tailscale_oauth_client_id }}
@@ -127,7 +150,7 @@ runs:
 
     - name: Setup Tailscale VPN (Auth Key - Legacy)
       # yamllint disable-line rule:line-length
-      if: inputs.operation == 'setup' && (inputs.tailscale_oauth_client_id == '' || inputs.tailscale_oauth_secret == '') && inputs.tailscale_auth_key != ''
+      if: inputs.operation == 'setup' && steps.tailscale-state.outputs.connected != 'true' && (inputs.tailscale_oauth_client_id == '' || inputs.tailscale_oauth_secret == '') && inputs.tailscale_auth_key != ''
       uses: tailscale/github-action@780049a30b6ff5c378a9e7b389d15ece7a204888 # v4.1.3
       with:
         authkey: ${{ inputs.tailscale_auth_key }}
