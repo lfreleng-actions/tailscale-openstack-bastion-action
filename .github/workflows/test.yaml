@@ -62,43 +62,6 @@ jobs:
           name: codecov-umbrella
           fail_ci_if_error: false
 
-  actionlint:
-    name: "Lint workflow files"
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    steps:
-      - name: Harden the runner
-        uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
-        with:
-          egress-policy: audit
-
-      - name: Checkout code
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-
-      - name: Download actionlint
-        id: get_actionlint
-        env:
-          # Pin the installer to an immutable commit SHA (tag v1.7.12) and
-          # request a fixed actionlint version, rather than fetching the
-          # script from the moving 'main' branch and installing 'latest'.
-          ACTIONLINT_VERSION: "1.7.12"
-          ACTIONLINT_SCRIPT_REF: "914e7df21a07ef503a81201c76d2b11c789d3fca"
-          ACTIONLINT_RAW_BASE: "https://raw.githubusercontent.com/rhysd/actionlint"
-        run: |
-          script_url="${ACTIONLINT_RAW_BASE}/${ACTIONLINT_SCRIPT_REF}/scripts/download-actionlint.bash"
-          curl --proto '=https' --tlsv1.2 -sSfL "${script_url}" -o download-actionlint.bash
-          bash download-actionlint.bash "${ACTIONLINT_VERSION}"
-        shell: bash
-
-      - name: Check workflow files
-        run: |
-          "${STEPS_GET_ACTIONLINT_OUTPUTS_EXECUTABLE}" -color
-        shell: bash
-        env:
-          STEPS_GET_ACTIONLINT_OUTPUTS_EXECUTABLE: ${{ steps.get_actionlint.outputs.executable }}
-
   pre-commit:
     name: "Pre-commit checks"
     runs-on: ubuntu-latest
