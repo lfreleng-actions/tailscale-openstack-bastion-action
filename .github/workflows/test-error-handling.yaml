@@ -46,11 +46,6 @@ jobs:
         with:
           egress-policy: audit
 
-      - name: Checkout code
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-
       - name: Setup Tailscale on Runner
         uses: tailscale/github-action@d1b6cd204f8dceda5b3eaad7f1f767be390056cd # v4.2.0
         with:
@@ -63,7 +58,7 @@ jobs:
       - name: Test Bastion Setup with Very Short Timeout
         id: setup
         continue-on-error: true
-        uses: ./
+        uses: $/
         with:
           operation: "setup"
           openstack_auth_url: ${{ secrets.OPENSTACK_AUTH_URL }}
@@ -165,15 +160,10 @@ jobs:
         with:
           egress-policy: audit
 
-      - name: Checkout code
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-
       - name: Test with Invalid OpenStack Credentials
         id: setup
         continue-on-error: true
-        uses: ./
+        uses: $/
         with:
           operation: "setup"
           openstack_auth_url: "https://invalid-auth-url.example.com:5000/v3/"
@@ -227,15 +217,10 @@ jobs:
         with:
           egress-policy: audit
 
-      - name: Checkout code
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-
       - name: Test with Missing Tailscale Credentials
         id: setup
         continue-on-error: true
-        uses: ./
+        uses: $/
         with:
           operation: "setup"
           openstack_auth_url: ${{ secrets.OPENSTACK_AUTH_URL }}

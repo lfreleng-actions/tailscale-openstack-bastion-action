@@ -71,11 +71,6 @@ jobs:
         with:
           egress-policy: audit
 
-      - name: Checkout repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-
       - name: Setup Tailscale on Runner
         uses: tailscale/github-action@d1b6cd204f8dceda5b3eaad7f1f767be390056cd # v4.2.0
         with:
@@ -95,7 +90,7 @@ jobs:
 
       - name: Setup bastion with OAuth ephemeral keys
         id: setup
-        uses: ./
+        uses: $/
         with:
           operation: setup
           openstack_auth_url: ${{ secrets.OPENSTACK_AUTH_URL }}
@@ -152,11 +147,6 @@ jobs:
         uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
         with:
           egress-policy: audit
-
-      - name: Checkout repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
 
       - name: Setup Tailscale on Runner
         uses: tailscale/github-action@d1b6cd204f8dceda5b3eaad7f1f767be390056cd # v4.2.0
@@ -268,11 +258,6 @@ jobs:
         with:
           egress-policy: audit
 
-      - name: Checkout repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-
       - name: Setup Tailscale on Runner
         uses: tailscale/github-action@d1b6cd204f8dceda5b3eaad7f1f767be390056cd # v4.2.0
         with:
@@ -283,7 +268,7 @@ jobs:
           args: --ssh --accept-dns=false
 
       - name: Teardown bastion
-        uses: ./
+        uses: $/
         with:
           operation: teardown
           openstack_auth_url: ${{ secrets.OPENSTACK_AUTH_URL }}
