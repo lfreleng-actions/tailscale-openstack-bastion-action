@@ -7,6 +7,11 @@ ci:
   skip:
     - gha-workflow-linter
     - aislop
+    # basedpyright needs typing modules (the tests import yaml), and any
+    # additional_dependencies exceed pre-commit.ci's 250 MiB per-hook
+    # limit: the bare hook alone is 248.7 MiB. The Test workflow's
+    # pre-commit job still runs it.
+    - basedpyright
   autofix_commit_msg: |
     Chore: Pre-commit autofixes
 
@@ -123,10 +128,23 @@ repos:
       - id: codespell
         args: ["--ignore-words=.codespell"]
 
+  # Requires a mirror, primary repo lacks .pre-commit-hooks.yaml
   - repo: https://github.com/DetachHead/basedpyright-prek-mirror
     rev: 706e6acebe9e88c2c28d1527d3085a14b11794c4  # frozen: 1.40.1
     hooks:
       - id: basedpyright
+        # Fail on warnings as well as errors, over the same directories as
+        # [tool.basedpyright] include in pyproject.toml.
+        args: [--warnings, scripts, tests]
+        # Scan those directories whole, so a staged change cannot hide a
+        # finding it causes in an unstaged file.
+        pass_filenames: false
+        # Run even when no Python is staged: deletions and config changes.
+        always_run: true
+        # Keep always_run from also firing the hook at commit-msg.
+        stages: [pre-commit]
+        # The tests import yaml; PyYAML's floor is from requirements-dev.txt.
+        additional_dependencies: ["PyYAML>=6.0", "types-PyYAML>=6.0"]
 
   - repo: https://github.com/lfreleng-actions/gha-workflow-linter
     rev: 0c582e431022f1c7004196fb4ea32744d1fe4843  # frozen: v1.7.0
