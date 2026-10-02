@@ -87,6 +87,27 @@ jobs:
           echo "Runner IPv4: $(sudo tailscale ip -4)"
           echo "Runner IPv6: $(sudo tailscale ip -6)"
 
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Mint bastion auth key
+        id: bastion-key
+        # This job has the bastion join with a static auth key while the
+        # runner uses OAuth. A key kept as a secret expires within 90
+        # days, and once it had, this suite failed on every push. Mint a
+        # short-lived one from the OAuth client instead: to the action
+        # it is the same kind of key, and nothing is left to rotate.
+        env:
+          TAILSCALE_OAUTH_CLIENT_ID: ${{ secrets.TAILSCALE_OAUTH_CLIENT_ID }}
+          TAILSCALE_OAUTH_SECRET: ${{ secrets.TAILSCALE_OAUTH_SECRET }}
+          TAILSCALE_TAGS: "tag:bastion"
+        run: |
+          key=$(./scripts/generate-ephemeral-key.sh)
+          echo "::add-mask::${key}"
+          echo "key=${key}" >> "$GITHUB_OUTPUT"
+
       - name: Setup Bastion
         id: setup
         uses: $/
@@ -105,7 +126,7 @@ jobs:
           bastion_wait_timeout: ${{ env.BASTION_WAIT_TIMEOUT }}
           tailscale_oauth_client_id: ${{ secrets.TAILSCALE_OAUTH_CLIENT_ID }}
           tailscale_oauth_secret: ${{ secrets.TAILSCALE_OAUTH_SECRET }}
-          tailscale_auth_key: ${{ secrets.TAILSCALE_AUTH_KEY }}
+          tailscale_auth_key: ${{ steps.bastion-key.outputs.key }}
           tailscale_tags: "tag:bastion"
           debug_mode: ${{ inputs.debug_mode || 'false' }}
 
