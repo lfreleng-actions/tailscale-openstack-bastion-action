@@ -52,10 +52,37 @@ jobs:
         with:
           egress-policy: audit
 
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Mint auth keys
+        id: keys
+        # The legacy path under test takes static auth keys. Keys kept as
+        # secrets expire within 90 days, and once one had, this suite
+        # failed on every push. Mint short-lived ones from the OAuth
+        # client instead: to the action they are the same kind of key,
+        # and nothing is left to rotate. One per device, tagged as the
+        # OAuth suites tag theirs, so the tailnet policy that lets those
+        # reach their bastion applies here unchanged.
+        env:
+          TAILSCALE_OAUTH_CLIENT_ID: ${{ secrets.TAILSCALE_OAUTH_CLIENT_ID }}
+          TAILSCALE_OAUTH_SECRET: ${{ secrets.TAILSCALE_OAUTH_SECRET }}
+        run: |
+          runner=$(TAILSCALE_TAGS="tag:ci" ./scripts/generate-ephemeral-key.sh)
+          echo "::add-mask::${runner}"
+          bastion=$(TAILSCALE_TAGS="tag:bastion" ./scripts/generate-ephemeral-key.sh)
+          echo "::add-mask::${bastion}"
+          {
+            echo "runner=${runner}"
+            echo "bastion=${bastion}"
+          } >> "$GITHUB_OUTPUT"
+
       - name: Setup Tailscale on Runner (Auth Key)
         uses: tailscale/github-action@d1b6cd204f8dceda5b3eaad7f1f767be390056cd # v4.2.0
         with:
-          authkey: ${{ secrets.TAILSCALE_AUTH_KEY }}
+          authkey: ${{ steps.keys.outputs.runner }}
           hostname: test-authkey-runner-${{ github.run_id }}
           args: --ssh --accept-dns=false
 
@@ -82,7 +109,7 @@ jobs:
           bastion_network: "odlci"
           bastion_name: ${{ env.BASTION_NAME }}
           bastion_wait_timeout: ${{ env.BASTION_WAIT_TIMEOUT }}
-          tailscale_auth_key: ${{ secrets.TAILSCALE_AUTH_KEY }}
+          tailscale_auth_key: ${{ steps.keys.outputs.bastion }}
           tailscale_tags: "tag:bastion"
           debug_mode: ${{ inputs.debug_mode || 'false' }}
 

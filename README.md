@@ -376,7 +376,8 @@ This action includes comprehensive test workflows to validate functionality:
 
 1. **test-bastion-setup.yaml** - Complete lifecycle test
 
-    - Tests bastion setup with OAuth authentication
+    - Tests bastion setup with OAuth authentication for the runner and
+      a static auth key for the bastion
     - Validates connectivity and SSH access
     - Tests network connectivity from bastion
     - Verifies proper teardown and cleanup
@@ -387,6 +388,9 @@ This action includes comprehensive test workflows to validate functionality:
     - Tests bastion setup with legacy auth keys
     - Validates backward compatibility
     - Run manually via workflow_dispatch
+
+    Neither suite stores an auth key: each mints short-lived ones from
+    the OAuth client on every run, so there is no key secret to rotate.
 
 3. **test-error-handling.yaml** - Error scenario tests
     - Tests timeout behavior and auto-cleanup
