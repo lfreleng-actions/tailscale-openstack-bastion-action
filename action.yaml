@@ -22,7 +22,7 @@ inputs:
     description: "OpenStack username"
     required: true
   openstack_password:
-    description: "OpenStack password (will be base64 decoded if needed)"
+    description: "OpenStack password, base64 encoded. Plain-text passwords are not accepted"
     required: true
   openstack_region:
     description: "OpenStack region"
@@ -208,11 +208,12 @@ runs:
         OS_IDENTITY_API_VERSION: "3"
         OS_USER_DOMAIN_NAME: "Default"
         OS_PROJECT_DOMAIN_NAME: "Default"
+        # Workflow context routed via env to avoid template injection
+        ACTION_PATH: ${{ github.action_path }}
       run: |
         echo "Configuring OpenStack credentials..."
-        # Decode base64 encoded password
-        PASSWORD=$(printf '%s' "${OS_PASSWORD}" | base64 -d)
-        export OS_PASSWORD="${PASSWORD}"
+        OS_PASSWORD=$("${ACTION_PATH}/scripts/decode-password.sh")
+        export OS_PASSWORD
 
         # Validate credentials
         echo "Validating OpenStack credentials..."
@@ -259,9 +260,8 @@ runs:
       run: |
         set -euo pipefail
 
-        # Decode base64 encoded password
-        PASSWORD=$(printf '%s' "${OS_PASSWORD}" | base64 -d)
-        export OS_PASSWORD="${PASSWORD}"
+        OS_PASSWORD=$("${ACTION_PATH}/scripts/decode-password.sh")
+        export OS_PASSWORD
 
         # Set bastion name
         BASTION_NAME="${BASTION_NAME:-bastion-gh-${RUN_ID}}"
@@ -293,9 +293,8 @@ runs:
       run: |
         set -euo pipefail
 
-        # Decode base64 encoded password
-        PASSWORD=$(printf '%s' "${OS_PASSWORD}" | base64 -d)
-        export OS_PASSWORD="${PASSWORD}"
+        OS_PASSWORD=$("${ACTION_PATH}/scripts/decode-password.sh")
+        export OS_PASSWORD
 
         TIMEOUT="${BASTION_WAIT_TIMEOUT}"
         ELAPSED=0
@@ -348,9 +347,8 @@ runs:
       run: |
         set -euo pipefail
 
-        # Decode base64 encoded password
-        PASSWORD=$(printf '%s' "${OS_PASSWORD}" | base64 -d)
-        export OS_PASSWORD="${PASSWORD}"
+        OS_PASSWORD=$("${ACTION_PATH}/scripts/decode-password.sh")
+        export OS_PASSWORD
 
         BASTION_NAME="${BASTION_NAME:-bastion-gh-${RUN_ID}}"
 
