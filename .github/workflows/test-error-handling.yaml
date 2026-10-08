@@ -78,20 +78,37 @@ jobs:
           debug_mode: "true"
 
       - name: Verify Timeout Behavior
+        id: verify-timeout
         run: |
           echo "=== Checking Timeout Behavior ==="
 
-          # The action should have timed out and cleaned up
-          if [ "${STEPS_SETUP_OUTCOME}" == "failure" ]; then
-            echo "✅ Action correctly failed on timeout"
-          else
+          if [ "${STEPS_SETUP_OUTCOME}" != "failure" ]; then
             echo "❌ Action should have timed out"
             exit 1
           fi
+
+          # Any setup failure gives that outcome. The action's scripts
+          # log to fixed paths on the runner: the setup log shows the
+          # bastion was created, and during setup only the timeout path
+          # runs the cleanup script, so its log shows the failure came
+          # from waiting for the bastion's Tailscale IP.
+          if ! grep -qF "=== Bastion Setup Complete ===" /tmp/bastion-setup.log 2>/dev/null; then
+            echo "❌ Action failed before creating the bastion, not on timeout"
+            exit 1
+          fi
+          if ! grep -qF "Bastion Name: ${BASTION_NAME}" /tmp/bastion-cleanup.log 2>/dev/null; then
+            echo "❌ Action failed after creating the bastion, but never ran auto-cleanup"
+            exit 1
+          fi
+          echo "✅ Action failed on timeout and triggered auto-cleanup"
         env:
           STEPS_SETUP_OUTCOME: ${{ steps.setup.outcome }}
 
       - name: Verify Auto-Cleanup After Timeout
+        id: verify-cleanup
+        # Run even when the timeout check failed: setup may have left a
+        # bastion running, and this step removes it.
+        if: always()
         env:
           # Secrets routed via env to avoid template injection
           OS_AUTH_URL: ${{ secrets.OPENSTACK_AUTH_URL }}
@@ -116,31 +133,47 @@ jobs:
           # Wait a bit for cleanup to complete
           sleep 10
 
-          # Check if bastion was cleaned up
-          if openstack server show "${BASTION_NAME}" &>/dev/null; then
-            echo "⚠️ WARNING: Bastion still exists - cleaning up manually"
-            openstack server delete --wait "${BASTION_NAME}" || true
-          else
+          # Only an explicit not-found counts as cleaned up; any other
+          # error (authentication, API outage) proves nothing.
+          if OUT=$(openstack server show -f value -c id -c status "${BASTION_NAME}" 2>&1); then
+            echo "❌ Bastion still exists: auto-cleanup did not remove it"
+            echo "${OUT}"
+            echo "Deleting it by hand so the test leaves nothing behind"
+            openstack server delete --wait "${BASTION_NAME}" || echo "⚠️ Manual delete failed too"
+            exit 1
+          elif printf '%s\n' "${OUT}" | grep -qE "No Server found|No server with a name or ID|NotFoundException"; then
             echo "✅ Bastion was automatically cleaned up after timeout"
+          else
+            echo "❌ Could not verify cleanup:"
+            echo "${OUT}"
+            exit 1
           fi
 
       - name: Generate Summary
         if: always()
         env:
-          # Step outcome routed via env to avoid template injection
-          SETUP_RESULT: ${{ steps.setup.outcome == 'failure' && '✅ Pass' || '❌ Fail' }}
+          # Step outcomes routed via env to avoid template injection
+          # yamllint disable-line rule:line-length
+          SETUP_RESULT: ${{ steps.verify-timeout.outcome == 'success' && steps.verify-cleanup.outcome == 'success' && '✅ Pass' || '❌ Fail' }}
           SETUP_OUTCOME: ${{ steps.setup.outcome }}
+          TIMEOUT_OUTCOME: ${{ steps.verify-timeout.outcome }}
+          CLEANUP_OUTCOME: ${{ steps.verify-cleanup.outcome }}
         run: |
           {
             echo "## Timeout Test Summary"
             echo ""
             echo "- **Test Scenario:** Timeout with short wait period (30s)"
-            echo "- **Expected:** Action fails and auto-cleans bastion"
+            echo "- **Expected:** Action fails on timeout and auto-cleans bastion"
             echo "- **Result:** ${SETUP_RESULT}"
             echo ""
             echo "### Details"
             echo "- Bastion setup outcome: ${SETUP_OUTCOME}"
-            echo "- Auto-cleanup verified"
+            echo "- Timeout path check: ${TIMEOUT_OUTCOME}"
+            if [ "${CLEANUP_OUTCOME}" == "success" ]; then
+              echo "- Auto-cleanup verified"
+            else
+              echo "- Auto-cleanup not verified (${CLEANUP_OUTCOME})"
+            fi
           } >> "$GITHUB_STEP_SUMMARY"
 
   test-invalid-credentials:
