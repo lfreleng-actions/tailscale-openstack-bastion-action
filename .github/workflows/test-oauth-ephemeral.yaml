@@ -276,7 +276,9 @@ jobs:
           openstack_username: ${{ secrets.OPENSTACK_USERNAME }}
           openstack_password: ${{ secrets.OPENSTACK_PASSWORD_B64 }}
           openstack_region: ${{ secrets.OPENSTACK_REGION }}
-          bastion_name: ${{ needs.prepare.outputs.bastion_name }}
+          # The output is empty when setup failed before naming the
+          # bastion, and the action's own fallback name is not this one.
+          bastion_name: ${{ needs.prepare.outputs.bastion_name || env.BASTION_NAME }}
           debug_mode: ${{ inputs.debug_mode || 'true' }}
 
       - name: Verify Bastion Cleanup
@@ -286,9 +288,14 @@ jobs:
           OS_USERNAME: ${{ secrets.OPENSTACK_USERNAME }}
           OPENSTACK_PASSWORD_B64: ${{ secrets.OPENSTACK_PASSWORD_B64 }}
           OS_REGION_NAME: ${{ secrets.OPENSTACK_REGION }}
-          BASTION_NAME_CHECK: ${{ needs.prepare.outputs.bastion_name }}
+          BASTION_NAME_CHECK: ${{ needs.prepare.outputs.bastion_name || env.BASTION_NAME }}
         run: |
           echo "Verifying bastion cleanup..."
+
+          if [ -z "${BASTION_NAME_CHECK}" ]; then
+            echo "❌ ERROR: No bastion name to verify"
+            exit 1
+          fi
 
           # Setup OpenStack CLI
           python -m pip install --upgrade pip
@@ -301,18 +308,23 @@ jobs:
           export OS_USER_DOMAIN_NAME="Default"
           export OS_PROJECT_DOMAIN_NAME="Default"
 
-          # Check if bastion instance still exists
-          if openstack server show "${BASTION_NAME_CHECK}" &>/dev/null; then
+          # Only an explicit not-found proves deletion; any other error
+          # (authentication, API outage) proves nothing.
+          if OUT=$(openstack server show -f value -c id -c status "${BASTION_NAME_CHECK}" 2>&1); then
             echo "❌ ERROR: Bastion instance still exists after teardown"
-            openstack server show "${BASTION_NAME_CHECK}"
+            echo "${OUT}"
             exit 1
-          else
+          elif printf '%s\n' "${OUT}" | grep -qE "No Server found|No server with a name or ID|NotFoundException"; then
             echo "✅ Bastion instance successfully deleted"
+          else
+            echo "❌ ERROR: Could not verify deletion"
+            echo "${OUT}"
+            exit 1
           fi
 
       - name: Verify Tailscale Cleanup
         env:
-          BASTION_NAME_CHECK: ${{ needs.prepare.outputs.bastion_name }}
+          BASTION_NAME_CHECK: ${{ needs.prepare.outputs.bastion_name || env.BASTION_NAME }}
         run: |
           echo "Verifying Tailscale cleanup..."
 

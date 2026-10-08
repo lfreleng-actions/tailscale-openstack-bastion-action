@@ -153,7 +153,9 @@ jobs:
           openstack_username: ${{ secrets.OPENSTACK_USERNAME }}
           openstack_password: ${{ secrets.OPENSTACK_PASSWORD_B64 }}
           openstack_region: ${{ secrets.OPENSTACK_REGION }}
-          bastion_name: ${{ steps.setup.outputs.bastion_name }}
+          # The output is empty when setup failed before naming the
+          # bastion, and the action's own fallback name is not this one.
+          bastion_name: ${{ steps.setup.outputs.bastion_name || env.BASTION_NAME }}
           debug_mode: ${{ inputs.debug_mode || 'false' }}
 
       - name: Generate Summary
