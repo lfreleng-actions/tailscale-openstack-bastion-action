@@ -153,6 +153,13 @@ jobs:
     environment: integration-auto
     timeout-minutes: 30
     if: inputs.test_scenario == 'invalid_credentials'
+    env:
+      # A user unknown to the real cloud, so Keystone rejects the login
+      # without counting a failure against the CI account's lockout.
+      INVALID_USERNAME: "invalid-user"
+      # openstack_password is base64 ("invalid-password"); plain text
+      # would fail at decode and never reach Keystone.
+      INVALID_PASSWORD_B64: "aW52YWxpZC1wYXNzd29yZA==" # gitleaks:allow
 
     steps:
       - name: Harden the runner
@@ -166,37 +173,76 @@ jobs:
         uses: $/
         with:
           operation: "setup"
-          openstack_auth_url: "https://invalid-auth-url.example.com:5000/v3/"
-          openstack_project_id: "invalid-project-id"
-          openstack_username: "invalid-user"
-          openstack_password: "invalid-password"
-          openstack_region: "invalid-region"
+          # The real endpoint and project, so the request reaches Keystone
+          # rather than failing on DNS for an invented host.
+          openstack_auth_url: ${{ secrets.OPENSTACK_AUTH_URL }}
+          openstack_project_id: ${{ secrets.OPENSTACK_PROJECT_ID }}
+          openstack_username: ${{ env.INVALID_USERNAME }}
+          openstack_password: ${{ env.INVALID_PASSWORD_B64 }}
+          openstack_region: ${{ secrets.OPENSTACK_REGION }}
           bastion_name: ${{ env.BASTION_NAME }}
           tailscale_oauth_client_id: ${{ secrets.TAILSCALE_OAUTH_CLIENT_ID }}
           tailscale_oauth_secret: ${{ secrets.TAILSCALE_OAUTH_SECRET }}
 
       - name: Verify Error Handling
+        id: verify
+        env:
+          STEPS_SETUP_OUTCOME: ${{ steps.setup.outcome }}
+          OS_AUTH_URL: ${{ secrets.OPENSTACK_AUTH_URL }}
+          OS_PROJECT_ID: ${{ secrets.OPENSTACK_PROJECT_ID }}
+          OS_REGION_NAME: ${{ secrets.OPENSTACK_REGION }}
         run: |
-          if [ "${STEPS_SETUP_OUTCOME}" == "failure" ]; then
-            echo "✅ Action correctly failed with invalid credentials"
-          else
+          if [ "${STEPS_SETUP_OUTCOME}" != "failure" ]; then
             echo "❌ Action should have failed with invalid credentials"
             exit 1
           fi
-        env:
-          STEPS_SETUP_OUTCOME: ${{ steps.setup.outcome }}
+
+          # Any setup failure gives that outcome, so pin down where it
+          # happened. The action installs the OpenStack CLI after its
+          # Tailscale steps, so finding the CLI means those passed.
+          if ! command -v openstack >/dev/null; then
+            echo "❌ Action failed before credential validation"
+            exit 1
+          fi
+
+          # The setup script logs from its first line. A log means the
+          # action carried on past the failed credential check.
+          if [ -e /tmp/bastion-setup.log ]; then
+            echo "❌ Action continued past credential validation"
+            exit 1
+          fi
+
+          # Confirm Keystone itself rejects these credentials, so the
+          # check failed on authentication, not on the network.
+          export OS_USERNAME="${INVALID_USERNAME}"
+          export OS_PASSWORD
+          OS_PASSWORD=$(printf '%s' "${INVALID_PASSWORD_B64}" | base64 -d)
+          export OS_IDENTITY_API_VERSION="3"
+          export OS_USER_DOMAIN_NAME="Default"
+          export OS_PROJECT_DOMAIN_NAME="Default"
+
+          if OUT=$(openstack token issue 2>&1); then
+            echo "❌ The invalid credentials authenticated"
+            exit 1
+          elif printf '%s\n' "${OUT}" | grep -qF "HTTP 401"; then
+            echo "✅ Action correctly failed: Keystone rejected the credentials"
+          else
+            echo "❌ Authentication failed for another reason:"
+            echo "${OUT}"
+            exit 1
+          fi
 
       - name: Generate Summary
         if: always()
         env:
           # Step outcome routed via env to avoid template injection
-          SETUP_RESULT: ${{ steps.setup.outcome == 'failure' && '✅ Pass' || '❌ Fail' }}
+          SETUP_RESULT: ${{ steps.verify.outcome == 'success' && '✅ Pass' || '❌ Fail' }}
         run: |
           {
             echo "## Invalid Credentials Test Summary"
             echo ""
             echo "- **Test Scenario:** Invalid OpenStack credentials"
-            echo "- **Expected:** Action fails gracefully"
+            echo "- **Expected:** Keystone rejects them and the action stops before creating a bastion"
             echo "- **Result:** ${SETUP_RESULT}"
           } >> "$GITHUB_STEP_SUMMARY"
 
