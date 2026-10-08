@@ -124,7 +124,7 @@ jobs:
                   openstack_auth_url: ${{ secrets.OPENSTACK_AUTH_URL }}
                   openstack_project_id: ${{ secrets.OPENSTACK_PROJECT_ID }}
                   openstack_username: ${{ secrets.OPENSTACK_USERNAME }}
-                  openstack_password: ${{ secrets.OPENSTACK_PASSWORD }}
+                  openstack_password: ${{ secrets.OPENSTACK_PASSWORD_B64 }}
                   tailscale_oauth_client_id: ${{ secrets.TAILSCALE_OAUTH_CLIENT_ID }}
                   tailscale_oauth_secret: ${{ secrets.TAILSCALE_OAUTH_SECRET }}
 
@@ -144,7 +144,7 @@ jobs:
                   openstack_auth_url: ${{ secrets.OPENSTACK_AUTH_URL }}
                   openstack_project_id: ${{ secrets.OPENSTACK_PROJECT_ID }}
                   openstack_username: ${{ secrets.OPENSTACK_USERNAME }}
-                  openstack_password: ${{ secrets.OPENSTACK_PASSWORD }}
+                  openstack_password: ${{ secrets.OPENSTACK_PASSWORD_B64 }}
 ```
 
 ### With Custom Configuration
@@ -167,13 +167,13 @@ jobs:
 
 ### Required Inputs
 
-| Input                  | Description                                  |
-| ---------------------- | -------------------------------------------- |
-| `operation`            | Operation to perform: `setup` or `teardown`  |
-| `openstack_auth_url`   | OpenStack authentication URL                 |
-| `openstack_project_id` | OpenStack project/tenant ID                  |
-| `openstack_username`   | OpenStack username                           |
-| `openstack_password`   | OpenStack password (base64 encoded or plain) |
+| Input                  | Description                                 |
+| ---------------------- | ------------------------------------------- |
+| `operation`            | Operation to perform: `setup` or `teardown` |
+| `openstack_auth_url`   | OpenStack authentication URL                |
+| `openstack_project_id` | OpenStack project/tenant ID                 |
+| `openstack_username`   | OpenStack username                          |
+| `openstack_password`   | OpenStack password, base64 encoded          |
 
 ### Tailscale Authentication (for setup operation)
 
@@ -279,7 +279,9 @@ Configure these secrets in your GitHub repository:
 - `OPENSTACK_AUTH_URL`: OpenStack authentication endpoint
 - `OPENSTACK_PROJECT_ID`: OpenStack project/tenant ID
 - `OPENSTACK_USERNAME`: OpenStack username
-- `OPENSTACK_PASSWORD` or `OPENSTACK_PASSWORD_B64`: OpenStack password (plain or base64 encoded)
+- `OPENSTACK_PASSWORD_B64`: OpenStack password, base64 encoded. The action
+  always decodes this value and does not accept a plain-text password;
+  encode it with `printf '%s' 'your-password' | base64`
 
 #### Tailscale Secrets (choose one method)
 

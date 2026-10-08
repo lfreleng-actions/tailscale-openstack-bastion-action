@@ -26,7 +26,6 @@ def encode(password: str) -> str:
     return base64.b64encode(password.encode()).decode()
 
 
-@pytest.mark.xfail(strict=True, reason="decode-password.sh not yet written")
 @pytest.mark.parametrize("password", ["S3cret-Pass!", "hunter22", "pässwörd"])
 def test_decodes_base64_password(password: str):
     """A base64-encoded password decodes to the original bytes."""
@@ -36,7 +35,6 @@ def test_decodes_base64_password(password: str):
     assert result.stdout == password.encode()
 
 
-@pytest.mark.xfail(strict=True, reason="decode-password.sh not yet written")
 def test_decodes_wrapped_base64_password():
     """Line-wrapped output from base64 tools decodes too."""
     password = "x" * 80
@@ -49,7 +47,6 @@ def test_decodes_wrapped_base64_password():
     assert result.stdout == password.encode()
 
 
-@pytest.mark.xfail(strict=True, reason="decode-password.sh not yet written")
 @pytest.mark.parametrize(
     ("value", "message"),
     [
@@ -73,7 +70,6 @@ def test_rejects_value_that_is_not_an_encoded_password(value: str, message: byte
     assert message in result.stderr
 
 
-@pytest.mark.xfail(strict=True, reason="action.yaml still decodes inline")
 def test_action_decodes_password_only_through_script():
     """Every step handed the password validates it the same way."""
     with open(ROOT / "action.yaml") as f:
@@ -88,7 +84,6 @@ def test_action_decodes_password_only_through_script():
         assert "base64 -d" not in step["run"], step["name"]
 
 
-@pytest.mark.xfail(strict=True, reason="decode-password.sh not yet written")
 def test_strips_trailing_newlines():
     """An encoded trailing newline, as `echo pw | base64` adds, is dropped."""
     result = run_decode(encode("S3cret-Pass!\n"))
