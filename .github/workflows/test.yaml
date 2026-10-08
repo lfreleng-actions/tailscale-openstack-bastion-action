@@ -61,30 +61,3 @@ jobs:
           flags: unittests
           name: codecov-umbrella
           fail_ci_if_error: false
-
-  pre-commit:
-    name: "Pre-commit checks"
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    steps:
-      - name: Harden the runner
-        uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
-        with:
-          egress-policy: audit
-
-      - name: Checkout code
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-
-      - name: Set up Python
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
-        with:
-          python-version: "3.11"
-
-      - name: Run pre-commit
-        env:
-          # gha-workflow-linter requires API access not available here;
-          # it is enforced separately and skipped on pre-commit.ci.
-          SKIP: no-commit-to-branch,gha-workflow-linter
-        run: pipx run pre-commit run --all-files --show-diff-on-failure

@@ -9,8 +9,8 @@ ci:
     - aislop
     # basedpyright needs typing modules (the tests import yaml), and any
     # additional_dependencies exceed pre-commit.ci's 250 MiB per-hook
-    # limit: the bare hook alone is 248.7 MiB. The Test workflow's
-    # pre-commit job still runs it.
+    # limit: the bare hook alone is 248.7 MiB. The Linting workflow
+    # runs it instead.
     - basedpyright
   autofix_commit_msg: |
     Chore: Pre-commit autofixes
