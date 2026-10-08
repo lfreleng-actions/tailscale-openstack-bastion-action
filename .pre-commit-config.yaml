@@ -143,8 +143,9 @@ repos:
         always_run: true
         # Keep always_run from also firing the hook at commit-msg.
         stages: [pre-commit]
-        # The tests import yaml; PyYAML's floor is from requirements-dev.txt.
-        additional_dependencies: ["PyYAML>=6.0", "types-PyYAML>=6.0"]
+        # The tests import yaml and pytest; the floors are from
+        # requirements-dev.txt.
+        additional_dependencies: ["PyYAML>=6.0", "types-PyYAML>=6.0", "pytest>=9.0.3"]
 
   - repo: https://github.com/lfreleng-actions/gha-workflow-linter
     rev: b23b60e5884e985320a030e6114032152e2373cd  # frozen: v1.7.1
