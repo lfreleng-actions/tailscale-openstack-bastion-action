@@ -1,0 +1,38 @@
+---
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 The Linux Foundation
+
+# Thin caller for the reusable linting workflow in generic-workflows.
+#
+# pre-commit.ci runs every hook in .pre-commit-config.yaml except those
+# listed under 'ci.skip'. This runs that remainder, one job per hook,
+# less aislop: the organisation already injects a blocking aislop
+# workflow into every repository.
+name: 'Linting 🧹'
+
+# yamllint disable-line rule:truthy
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+  push:
+    branches: ['main']
+
+permissions: {}
+
+# A literal group: github.workflow resolves to the workflow name, which
+# an organisation-injected workflow could share.
+concurrency:
+  group: 'linting-${{ github.ref }}'
+  cancel-in-progress: false
+  queue: max
+
+jobs:
+  linting:
+    name: 'Linting'
+    permissions:
+      contents: read
+    # yamllint disable-line rule:line-length
+    uses: lfreleng-actions/generic-workflows/.github/workflows/linting.yaml@0ed9c16d59a3ff92afad23a7c1aba3ab61238b87  # v0.4.3
+    with:
+      ci_skipped: true
+      skip_hooks: 'aislop'
