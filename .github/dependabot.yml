@@ -17,3 +17,27 @@ updates:
     cooldown:
       default-days: 7
     open-pull-requests-limit: 15
+  # The test dependencies are locked with uv (pyproject.toml +
+  # uv.lock); the uv ecosystem keeps that lockfile current.
+  - package-ecosystem: "uv"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "Chore"
+    cooldown:
+      default-days: 7
+    open-pull-requests-limit: 15
+  # The OpenStack CLI the action installs on the runner is pinned by
+  # hash in requirements/openstack-cli.txt, outside the uv lockfile
+  # because it is a runtime dependency of the action, not of the
+  # tests. The pip ecosystem bumps the pins and their hashes.
+  - package-ecosystem: "pip"
+    directory: "/requirements"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "Chore"
+    cooldown:
+      default-days: 7
+    open-pull-requests-limit: 5

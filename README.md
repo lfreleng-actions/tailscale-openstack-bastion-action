@@ -106,6 +106,18 @@ See [ARCHITECTURE.md](docs/ARCHITECTURE.md) for detailed architecture documentat
 - Tailscale account with configured ACLs
 - GitHub repository secrets configured (see Configuration section)
 
+For `setup` and `teardown` the action installs
+[uv](https://github.com/astral-sh/uv) and, with it, the OpenStack CLI
+from PyPI, every distribution pinned by hash in
+`requirements/openstack-cli.txt`, into a virtual environment under the
+runner's temporary directory. It puts the `openstack` command alone on
+`PATH`, where it stays for the rest of the job, and leaves the runner's
+own `python` untouched. A runner with blocked egress needs these hosts
+allowed: `raw.githubusercontent.com` (setup-uv's version manifest),
+`releases.astral.sh` (the uv archive, falling back to `github.com` and
+`release-assets.githubusercontent.com`), `pypi.org` and
+`files.pythonhosted.org`.
+
 ## Usage
 
 ### Basic Setup and Teardown

@@ -1,0 +1,16 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2025 The Linux Foundation
+
+# The OpenStack CLI the action installs on the runner for the setup
+# and teardown operations. Compile the fully resolved, hash-pinned
+# lock beside it after any change here, with the uv version the
+# workflows pin:
+#
+#   uv pip compile requirements/openstack-cli.in --universal \
+#     --python-version 3.10 --generate-hashes \
+#     --output-file requirements/openstack-cli.txt
+#
+# --universal resolves for every platform and for each CPython from
+# 3.10, the oldest a GitHub-hosted Ubuntu runner ships, so one file
+# serves whichever interpreter the runner provides.
+python-openstackclient

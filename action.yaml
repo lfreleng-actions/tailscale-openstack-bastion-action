@@ -190,11 +190,49 @@ runs:
         echo "✅ Tailscale status:"
         sudo tailscale status
 
+    - name: Install uv
+      if: inputs.operation == 'setup' || inputs.operation == 'teardown'
+      uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+      with:
+        # Pin the installer too; the action SHA alone leaves uv floating.
+        version: "0.13.0"
+        # No cache: its key would be derived from the caller's
+        # workspace, and the CLI installs in seconds without one.
+        enable-cache: false
+
     - name: Install OpenStack CLI
       if: inputs.operation == 'setup' || inputs.operation == 'teardown'
       shell: bash
-      run: |
-        pip install python-openstackclient
+      env:
+        ACTION_PATH: ${{ github.action_path }}
+        # Install into the runner's own Python; never fetch one.
+        UV_PYTHON_DOWNLOADS: never
+      # The only $GITHUB_PATH write below appends a directory under the
+      # runner-provided $RUNNER_TEMP holding one symlink, so 'openstack'
+      # is on PATH for the steps that follow; the value is not derived
+      # from any action input or other user-controllable source.
+      run: | # zizmor: ignore[github-env]
+        # Every distribution is pinned by hash in openstack-cli.txt;
+        # --require-hashes refuses anything outside that lock. uv runs
+        # in the caller's checkout, so --no-config and --no-project keep
+        # a .python-version or [tool.uv] there from steering this
+        # install, and --python asks for any installed interpreter the
+        # lock resolves for. --clear makes a setup followed by a
+        # teardown in one job idempotent.
+        venv="${RUNNER_TEMP}/openstack-cli"
+        uv venv --quiet --clear --no-config --no-project \
+          --python '>=3.10' "${venv}"
+        uv pip install --quiet --no-config --require-hashes \
+          --python "${venv}" \
+          --requirement "${ACTION_PATH}/requirements/openstack-cli.txt"
+        # Expose the 'openstack' entry point alone, through a directory
+        # of its own: GITHUB_PATH entries are prepended, so the venv's
+        # bin would put its python ahead of the caller's for the rest
+        # of the job.
+        bin="${RUNNER_TEMP}/openstack-cli-bin"
+        mkdir -p "${bin}"
+        ln -sf "${venv}/bin/openstack" "${bin}/openstack"
+        echo "${bin}" >> "${GITHUB_PATH}"
 
     - name: Configure OpenStack credentials
       if: inputs.operation == 'setup' || inputs.operation == 'teardown'
