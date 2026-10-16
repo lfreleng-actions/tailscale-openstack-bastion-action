@@ -316,9 +316,14 @@ jobs:
             exit 1
           fi
 
-          # Setup OpenStack CLI
-          python -m pip install --upgrade pip
-          pip install python-openstackclient
+          # The teardown step above installed the hash-pinned OpenStack
+          # CLI and put it on PATH for the rest of the job; a consumer's
+          # later steps rely on the same thing, so fail loudly if it is
+          # missing rather than installing a second copy here.
+          if ! command -v openstack >/dev/null 2>&1; then
+            echo "❌ ERROR: openstack CLI not on PATH after the teardown step"
+            exit 1
+          fi
 
           # Configure OpenStack credentials
           export OS_PASSWORD

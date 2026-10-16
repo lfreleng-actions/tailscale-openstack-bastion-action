@@ -33,6 +33,13 @@ test = [
     "PyYAML>=6.0",
 ]
 
+# The tests read the action's YAML and scripts from the checkout and
+# import nothing from this project, so uv never builds or installs it:
+# 'uv sync --locked --extra test' installs the test extra alone, with
+# no unlocked fetch of the build backend.
+[tool.uv]
+package = false
+
 [tool.pytest.ini_options]
 minversion = "9.0.3"
 addopts = "-ra -q --strict-markers"

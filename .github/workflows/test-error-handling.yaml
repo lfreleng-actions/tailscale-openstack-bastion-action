@@ -119,9 +119,16 @@ jobs:
         run: |
           echo "Verifying bastion was cleaned up after timeout..."
 
-          # Setup OpenStack CLI
-          python -m pip install --upgrade pip
-          pip install python-openstackclient
+          # The setup step installs the hash-pinned OpenStack CLI, and
+          # puts it on PATH for the rest of the job, before it creates
+          # the bastion. So if the CLI is missing, setup failed before
+          # there was anything to clean up, and the job is already
+          # failing on the timeout check above; say so rather than
+          # installing a second copy here.
+          if ! command -v openstack >/dev/null 2>&1; then
+            echo "❌ openstack CLI not on PATH: setup failed before installing it"
+            exit 1
+          fi
 
           # Configure OpenStack credentials (provided via job env)
           export OS_PASSWORD

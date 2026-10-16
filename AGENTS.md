@@ -34,7 +34,16 @@ a pull request, not the full set:
 ## Repository specifics
 
 The test dependencies sit in the `test` extra of `pyproject.toml`,
-which plain `uv sync` skips. Set up with `uv sync --extra test` before
-`uv run pytest`. Without it, `uv run` falls back to any pytest on
-`PATH`, which fails on `minversion` or on missing imports; do not
-lower `minversion` to get past it.
+which plain `uv sync` skips, and `uv.lock` pins them. Set up with
+`uv sync --locked --extra test` before `uv run --no-sync pytest`.
+Without the extra, `uv run` falls back to any pytest on `PATH`, which
+fails on `minversion` or on missing imports; do not lower `minversion`
+to get past it. After changing the extra, regenerate the lockfile with
+`uv lock`, using the uv version the workflows pin, so `--locked` keeps
+passing in CI.
+
+`requirements/openstack-cli.txt` pins, by hash, the OpenStack CLI the
+action installs on the runner. Regenerate it from the `.in` file
+beside it with the command in that file's header. The integration
+tests' verify steps use the copy the action installed rather than
+installing their own.
