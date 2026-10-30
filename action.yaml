@@ -139,7 +139,7 @@ runs:
     - name: Setup Tailscale VPN (OAuth)
       # yamllint disable-line rule:line-length
       if: inputs.operation == 'setup' && steps.tailscale-state.outputs.connected != 'true' && inputs.tailscale_oauth_client_id != '' && inputs.tailscale_oauth_secret != ''
-      uses: tailscale/github-action@d1b6cd204f8dceda5b3eaad7f1f767be390056cd # v4.2.0
+      uses: tailscale/github-action@99a8333667fff04fdd6cffb46dfd409f8329a7bf # v4.3.0
       with:
         oauth-client-id: ${{ inputs.tailscale_oauth_client_id }}
         oauth-secret: ${{ inputs.tailscale_oauth_secret }}
@@ -151,7 +151,7 @@ runs:
     - name: Setup Tailscale VPN (Auth Key - Legacy)
       # yamllint disable-line rule:line-length
       if: inputs.operation == 'setup' && steps.tailscale-state.outputs.connected != 'true' && (inputs.tailscale_oauth_client_id == '' || inputs.tailscale_oauth_secret == '') && inputs.tailscale_auth_key != ''
-      uses: tailscale/github-action@d1b6cd204f8dceda5b3eaad7f1f767be390056cd # v4.2.0
+      uses: tailscale/github-action@99a8333667fff04fdd6cffb46dfd409f8329a7bf # v4.3.0
       with:
         authkey: ${{ inputs.tailscale_auth_key }}
         version: ${{ inputs.tailscale_version }}
