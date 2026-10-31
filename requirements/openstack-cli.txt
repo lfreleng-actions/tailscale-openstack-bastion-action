@@ -4,11 +4,15 @@ autopage==0.6.0 \
     --hash=sha256:42d07de90de63e83762828028bfd56d19906a18f7c951ef6eef3e9ad48a3071d \
     --hash=sha256:87566f08a7d4ba20e346515d26ba1132f2fac4e5619ffba3079e63c28e5df98f
     # via cliff
+backports-strenum==1.3.1 ; python_full_version < '3.11' \
+    --hash=sha256:77c52407342898497714f0596e86188bb7084f89063226f4ba66863482f42414 \
+    --hash=sha256:cdcfe36dc897e2615dc793b7d3097f54d359918fc448754a517e6f23044ccf83
+    # via cmd2
 certifi==2026.10.19 \
     --hash=sha256:035c1e85572b141bf1c3a3eff0e33a8eb74917522f2559075ff8d2fea780a1ae \
     --hash=sha256:42d35340cc5b9ba78e818ddbff0c5b1c2b779de448a340fd1b989f5fa8670e1b
     # via requests
-cffi==2.1.1 \
+cffi==2.1.1 ; platform_python_implementation != 'PyPy' \
     --hash=sha256:046bfc24911b37851ee1b51aab8bffe713d89c68c6a057b09484ce9fd5f69b4e \
     --hash=sha256:06c72bb76605a4b0cd0aad6930b69d4baf7dd5d806cfc409b824191099700e66 \
     --hash=sha256:0beceaabe56af686895136a2de78db54ecd8e4046b236b8fd6d6cb61389e9bf2 \
@@ -284,13 +288,23 @@ charset-normalizer==3.5.2 \
     --hash=sha256:fd1fbe0f116b6e55da77aca2c6ddcddcfac2186cbf78bdebf40fc156efca389d \
     --hash=sha256:fe9753dfee015c570d73df76f899f18444d41388bffcde097deba51c4fadbb9f
     # via requests
-cliff==4.16.0 \
+cliff==4.14.0 ; python_full_version < '3.11' \
+    --hash=sha256:2ca28f61cb7bf0b3b3f3061955b22e07f40a270a8837d1ce0f462f985bf7d77f \
+    --hash=sha256:66f2fbb0e18c348e44794014cfed92bf6522ef997e0c096df199dad195182f8a
+    # via
+    #   osc-lib
+    #   python-openstackclient
+cliff==4.16.0 ; python_full_version >= '3.11' \
     --hash=sha256:6739e39df0b0c9424787964141c60eee9a533ed0bc3c364857c716fcb666f871 \
     --hash=sha256:85314ad49bd62f90a51094d4e31b1cb4d3b92fb83cb3935eeba0236c32839e75
     # via
     #   osc-lib
     #   python-openstackclient
-cmd2==4.3.0 \
+cmd2==3.5.1 ; python_full_version < '3.11' \
+    --hash=sha256:1637f765e764b022dfa617f4711fb441599732082eb6310cf8739fbaec2335a0 \
+    --hash=sha256:321ebcfaea9dbbd8651c0bb10fdaf197f11b95f355d782d50eee9b5ef250f428
+    # via cliff
+cmd2==4.3.0 ; python_full_version >= '3.11' \
     --hash=sha256:27fe16867ffa204d3d6ae53ef88d2331e82259776bd5bd57e51189b6c497a62a \
     --hash=sha256:3f6c4b9619dbd0d1ba75789a099be82b65daf8ac1d97b8e4ecb112e76c72b100
     # via cliff
@@ -374,6 +388,45 @@ dogpile-cache==1.5.0 \
     --hash=sha256:849c5573c9a38f155cd4173103c702b637ede0361c12e864876877d0cd125eec \
     --hash=sha256:dc7b47d37844db15e8fdc0243c1b58857a2ddc52a5118237a97127bac200e18d
     # via openstacksdk
+gnureadline==8.3.3 ; python_full_version < '3.11' and sys_platform == 'darwin' \
+    --hash=sha256:049988a12b8ae0f158b9fdc4dfec6813fc00503e11e86e6f520a6e43f8acc40f \
+    --hash=sha256:04ad9724dd1783d140146a1e83313918741975c1226a5dfa1b2e97560d8e36c7 \
+    --hash=sha256:0972392bd2f31244e2d981178246fe8b729c8766454fdaeb275946ac47b7e9fd \
+    --hash=sha256:11e4d8572eba509aca690e026928e1cd3df3f1b5ec39b551c6571cfd559f84e1 \
+    --hash=sha256:1267ba734d24ffbc8967191c5bc213f6dd8718284d917c69a3ee7d2541e60179 \
+    --hash=sha256:14df36d06f8102caadff0df0a87ba33b381c2b22904f0ed2ad527784f5ec9f46 \
+    --hash=sha256:176f78055a19e0d3774263a45e3cd25d56707189cd558a6259939e688752d52e \
+    --hash=sha256:1a954229ac14210f8efbbd724184f26a09a5b85ddb027a1f4ab64c22da59cf69 \
+    --hash=sha256:1f14c7c24ca819c6a90ba652bb0575f8d31c9ba8691f24b4fa249b175d9e531b \
+    --hash=sha256:251495414ee34dd7f068e0c4f09ee46f068e0e08a75428a7fbdf41a8ffa8bb27 \
+    --hash=sha256:320c9c47ecbfa2ea89f1821fa289b6f41f830654832a6069329dc3dda06f6784 \
+    --hash=sha256:34c49ebd2d41bf2ea758a68866dc19212abdc668fbcfc4928910d031f7a045e4 \
+    --hash=sha256:3d4a0936de1365e193c8328e84b688a0bee1398b7d9413d5e67bcf92a10a525f \
+    --hash=sha256:4e686dd0b971c7c798f486d3050581d85b4ca4a59c503b8c722f4d9362d1c935 \
+    --hash=sha256:52357146c072525113e4f572ff2d1e302edb8f04cd93e76b3e7d08e36a6f680b \
+    --hash=sha256:5b10e62f86f3738682ac5df2165fa711eba1f35193dc8a1af20d794434ca2816 \
+    --hash=sha256:656cc27bbb5cbe2b8fe1b367768931b48dd85a1bf3aa03e980618388ff3da376 \
+    --hash=sha256:6d113859beefa0136e09b9ed20c8da31990f133d3536cd34f5665ee40ed2f261 \
+    --hash=sha256:75519fea565510a868389cd841e45d64140a323d723dda30edf72009c2e3362f \
+    --hash=sha256:8012e70db91f13409f36655a10f9752c43d9848de6d1ed379b526f3f8a449a44 \
+    --hash=sha256:831599cd9fea95eae2110646d274ed0fe0e0c20cf32e0eb01a5225d9dad4f1b4 \
+    --hash=sha256:8513db40b4c5404ad3e883ad747e0cf113ec7b0b884dff1f6f873f9a1c1d2432 \
+    --hash=sha256:87a8d9ba3e87c495b9388ef5566a647d7ab1db345b841c745ae2c21033a37856 \
+    --hash=sha256:8b798a83ebdb7d39731ac18011a212b6932899af64ad0d1ced3b8d5b4cb86d40 \
+    --hash=sha256:8c04e2c1f3f24a17c4e7b5789192e63c2fa5441475b7134cb8c3d066615a5c69 \
+    --hash=sha256:95657d44373897b853077605c0587fa9ed1077fef5f22da638c9a73f0500c1d5 \
+    --hash=sha256:a0427e9f75a0407391bdc2e0e76b06807b50a0e1fb73cf99b3d40a4dd1299c43 \
+    --hash=sha256:a27edaec97f038ba3eafa69fc79fa82bedf963319502fa065361ac1b1edffb3e \
+    --hash=sha256:a326ef2fb5e213518b96ef41b1f74c12f61d2ac8c2dca9ae6dbf88991b46244e \
+    --hash=sha256:ad431a93d1bdde49782530fd86e2856ac0518407a69bef9af7fb2dfc92003903 \
+    --hash=sha256:c1dabc49d09ab802dccb9f8057956cf9561b2ff9e5e4f7c2e2ad103356b2397d \
+    --hash=sha256:da1335bdc70fc99f45578d7cdeb89bd5a16e0d26785bbe5bcc1dc1acdd7a7734 \
+    --hash=sha256:dfd893dac7b63f71dc41dce5d31c05388e55cb7bc6b58535e2a0eb29a5ad0352 \
+    --hash=sha256:e2389a957241b3d6d84bd2f575b7e40d8466f5cd4809dfea4a31b166fa135f68 \
+    --hash=sha256:f7c23f4bf5c67d337a9e1a9c3e77e0eaadef76642c36e52f5fac31ef1eb5111e \
+    --hash=sha256:fa03cc35adeddb05412fda494b3d6851e810401341aa7abee7347f116dc74ad6 \
+    --hash=sha256:fff8def8a9ec595e6dd9186bc4fc7061aaee34e4a0b762b120ef2398bbbbafc8
+    # via cmd2
 idna==3.20 \
     --hash=sha256:a7db850025b95ded1eae8a46181a1a6c56c92c96f0e2b005d9ff8dc0210cab44 \
     --hash=sha256:ab7ae7122974553370f0bdb919e1a960b2cd1bc1ef0276416d896db81c14582c
@@ -398,7 +451,15 @@ jsonpointer==3.2.1 \
     --hash=sha256:47c846513b3a4ec46eecef1105207fba075e2a3659048e362bd7daff0fc33342 \
     --hash=sha256:b19ee68644e9ffb51440448d8f7811af2b7406eea1db90603e93f5849323119a
     # via jsonpatch
-keystoneauth1==5.18.1 \
+keystoneauth1==5.14.0 ; python_full_version < '3.11' \
+    --hash=sha256:7b942084d3db27dd285c13253cdfee10b05be0436db1c01e15dc744902197a7f \
+    --hash=sha256:f8c503a95fdd83b5b72736657e4ffbb53d4b28b01763f23013f0294ed8a0e4b9
+    # via
+    #   openstacksdk
+    #   osc-lib
+    #   python-cinderclient
+    #   python-keystoneclient
+keystoneauth1==5.18.1 ; python_full_version >= '3.11' \
     --hash=sha256:2440f1f29e4aaaaf771893e8da7c098ca27548210dc13e964b53fd2aaaedd6b0 \
     --hash=sha256:8970f9d103f335c39151366d70c001d1bb99b00d73845f03d47825e8dc35ff78
     # via
@@ -513,36 +574,66 @@ netaddr==1.3.0 \
     # via
     #   oslo-config
     #   oslo-utils
-openstacksdk==4.21.0 \
+openstacksdk==4.13.0 ; python_full_version < '3.11' \
+    --hash=sha256:3588662fdfba753ec32336dca836562622017ab8ed7b5bc910dd128681ebac8a \
+    --hash=sha256:ab5b0d7e3a42de3dbc78497b31b5be53abf77a962986b3a621821e07e38c69a2
+    # via
+    #   osc-lib
+    #   python-openstackclient
+openstacksdk==4.21.0 ; python_full_version >= '3.11' \
     --hash=sha256:8890c6ff4a41cbfef1ccbac810c16f11877d9430d9724d999921e5ef557c4daf \
     --hash=sha256:c6c95ae35b93edf66bba9826391b490b1975cd971fba3968f8926b8b7c6fb2c6
     # via
     #   osc-lib
     #   python-openstackclient
-os-service-types==1.9.0 \
+os-service-types==1.8.2 ; python_full_version < '3.11' \
+    --hash=sha256:ab7648d7232849943196e1bb00a30e2e25e600fa3b57bb241d15b7f521b5b575 \
+    --hash=sha256:f78890d71814deffabf0ed4358288ec2ced579bc4d0bb87a79ae806cbb4deb6e
+    # via
+    #   keystoneauth1
+    #   openstacksdk
+os-service-types==1.9.0 ; python_full_version >= '3.11' \
     --hash=sha256:1f2e5fb71d1f6f4ff31d8992674f2368465bc2f25cd94018015c3ddbfc5c617f \
     --hash=sha256:f268545c896434177bf55c43f7d5129e65210d5d456df3f00a1c9832a71c3a4b
     # via
     #   keystoneauth1
     #   openstacksdk
-osc-lib==4.7.0 \
+osc-lib==4.6.0 ; python_full_version < '3.11' \
+    --hash=sha256:b2588feb50c4192ebacf51f95c51278eb709c8217b36cb72c667958bbfeece3e \
+    --hash=sha256:b896217bcb175e29f41f84d05b5b4b7163269cd6a7f873cc71b17a991b5b0055
+    # via python-openstackclient
+osc-lib==4.7.0 ; python_full_version >= '3.11' \
     --hash=sha256:5b896de12ed69fb1111d2971467d403b838d414fc27df2024fc50e8652a53f2b \
     --hash=sha256:a6b14d8a1d9a487334925d377b2b249d5f7317eb57e53e89de3a2627fe268d6d
     # via
     #   python-manilaclient
     #   python-openstackclient
-oslo-config==10.7.0 \
+oslo-config==10.4.0 ; python_full_version < '3.11' \
+    --hash=sha256:0429c7b312114fb796005bdb718bba51e66de9c0814fb2cee22e754afbfe253b \
+    --hash=sha256:2ae3e02593474ecd7b64ec4eb11482adb4c928a78267bc820f5c3f80240b197a
+    # via python-keystoneclient
+oslo-config==10.7.0 ; python_full_version >= '3.11' \
     --hash=sha256:4f0fd4ca7ecfe511fbc0e012d3c63fce57009f360199e9e9cc2329ed55ec911e \
     --hash=sha256:d4e80b535fb208cb15cf0ce6f6fd976eebd694f21dc37e3f3d68a360cbe7eab5
     # via
     #   oslo-log
     #   python-keystoneclient
     #   python-manilaclient
-oslo-context==6.5.0 \
+oslo-context==6.5.0 ; python_full_version >= '3.11' \
     --hash=sha256:6f3f038917711c03fa34bae1867076df24bd7a5ab5d3bf0bd0407869c5274d7e \
     --hash=sha256:7e1fb03c6a97167959f37d930300154e0ee837ecdb85798c2bbe8878b56caaaf
     # via oslo-log
-oslo-i18n==6.9.0 \
+oslo-i18n==6.8.0 ; python_full_version < '3.11' \
+    --hash=sha256:77a6729535ec5a49f72bc64d7795b673a88c1b9c753e0fca45d4e6b14e892bb9 \
+    --hash=sha256:a0b4c64c1396869d7144dca60ad97c7eb028f78f61f91c7007531238051997df
+    # via
+    #   osc-lib
+    #   oslo-config
+    #   oslo-utils
+    #   python-cinderclient
+    #   python-keystoneclient
+    #   python-openstackclient
+oslo-i18n==6.9.0 ; python_full_version >= '3.11' \
     --hash=sha256:354b6cd3ba1acf1f04231f690028fd5b58bd8b7cda7bd9859126bb97152c717b \
     --hash=sha256:574bcf21873b185068bcec951de1ec093158ffdff05a8055fd18ddcb69f69e65
     # via
@@ -552,18 +643,30 @@ oslo-i18n==6.9.0 \
     #   oslo-utils
     #   python-keystoneclient
     #   python-openstackclient
-oslo-log==8.3.2 \
+oslo-log==8.3.2 ; python_full_version >= '3.11' \
     --hash=sha256:478a5cbae4375c42f2e114ea0aafda105b8753b9b8bd1acc09d154a254048002 \
     --hash=sha256:e3b61143756749b55eed8dbf064914c053e17e4e741c05fdb4e01d9f9a420a31
     # via python-manilaclient
-oslo-serialization==5.11.0 \
+oslo-serialization==5.10.0 ; python_full_version < '3.11' \
+    --hash=sha256:197b94cc76a11362e9d53a8d5cfc168c4eabbdd071e2a8a5753b6419130451b5 \
+    --hash=sha256:79a71cde2651afd5dc7f065a56e4a100a4d4127ef1b17f798a6d09cea24976b6
+    # via python-keystoneclient
+oslo-serialization==5.11.0 ; python_full_version >= '3.11' \
     --hash=sha256:34d47104d94296488fad23f280ad09b7000102636b3e6f4f120517678ba1b64f \
     --hash=sha256:8326e85a80856c1068007423fcf6fe29dd2fe57a32f5d87fff0120b555b4b67c
     # via
     #   oslo-log
     #   python-keystoneclient
     #   python-manilaclient
-oslo-utils==10.2.0 \
+oslo-utils==10.1.1 ; python_full_version < '3.11' \
+    --hash=sha256:c8ac3ee295303cc5776c4d8e1d4ef10078ece60ede4931177e4f07aca58f81ab \
+    --hash=sha256:dcc7aa6668aa84fc14a18a4064b389b2992e1ee793ba38dadac327dfba69dadd
+    # via
+    #   osc-lib
+    #   oslo-serialization
+    #   python-cinderclient
+    #   python-keystoneclient
+oslo-utils==10.2.0 ; python_full_version >= '3.11' \
     --hash=sha256:ba839dea2c1eb415e3ee151c4cc688f52e283f59bc1f77cc86772190a8b34259 \
     --hash=sha256:f33abd2f3c638c00f8736dfdff83a34f433bdb71e3b448d4380809a329917919
     # via
@@ -582,6 +685,7 @@ pbr==7.1.3 \
     --hash=sha256:6583e878a1d97cb135fdc509811f31b9235905cde8d4dacd3dbadf9efc45d745 \
     --hash=sha256:9a4a85b84e906337708009af0b5f5cdabeeb72d4dc213c9e97974da54fd9acc5
     # via
+    #   keystoneauth1
     #   openstacksdk
     #   os-service-types
     #   osc-lib
@@ -589,9 +693,14 @@ pbr==7.1.3 \
     #   oslo-i18n
     #   oslo-log
     #   oslo-utils
+    #   python-cinderclient
     #   python-keystoneclient
     #   python-manilaclient
-platformdirs==4.13.3 \
+platformdirs==4.12.4 ; python_full_version < '3.11' \
+    --hash=sha256:63743c02414e755de4e31b8f68125c1407495b86c5a006e203c01ff8b9924250 \
+    --hash=sha256:78bfb9db2a8471ed7eebe3c3c932da413911042994e699b384fbb4493fa872d7
+    # via openstacksdk
+platformdirs==4.13.3 ; python_full_version >= '3.11' \
     --hash=sha256:5e567f664eb087ab8521c0179cd8d1bd60857d271136567a39719e28e2d383ce \
     --hash=sha256:f6ad7f447f24f8a3b82cce5976387428bff894a0eca6c3488f4a17f153c130c4
     # via openstacksdk
@@ -600,8 +709,9 @@ prettytable==3.18.0 \
     --hash=sha256:b3346e0e6f79180833aebaac088ae926340586cf6d7d991b9eb125b65f72313a
     # via
     #   cliff
+    #   python-cinderclient
     #   python-manilaclient
-prompt-toolkit==3.0.53 \
+prompt-toolkit==3.0.53 ; python_full_version >= '3.11' \
     --hash=sha256:01c0891d7f9237d5e339f7d3e42cdae80b7534abb1c7c0e3352efba6231492f2 \
     --hash=sha256:9ec8a0ad96d5c56148b3f914aa79c1564c3fde5d2e6b876e7bc327e353cf8fa6
     # via cmd2
@@ -630,7 +740,7 @@ psutil==7.2.2 \
     # via
     #   openstacksdk
     #   oslo-utils
-pycparser==3.11 \
+pycparser==3.11 ; implementation_name != 'PyPy' and platform_python_implementation != 'PyPy' \
     --hash=sha256:51d5a8ba2be0bbe440b99d2112604c95bbbc3c2748a64260186c541e1729cd80 \
     --hash=sha256:d875f09c3507d00e1aba0eecc6dcadc1352f30fff09dc6bff2f1c2935e97c2bc
     # via cffi
@@ -646,7 +756,15 @@ pyperclip==1.11.0 \
     --hash=sha256:244035963e4428530d9e3a6101a1ef97209c6825edab1567beac148ccc1db1b6 \
     --hash=sha256:299403e9ff44581cb9ba2ffeed69c7aa96a008622ad0c46cb575ca75b5b84273
     # via cmd2
-python-dateutil==2.9.0.post0 \
+pyreadline3==3.5.6 ; python_full_version < '3.11' and sys_platform == 'win32' \
+    --hash=sha256:61e53218b99656091ddb077df9e71f25850e72e030b6183b39c9b7e6e4f4a9bf \
+    --hash=sha256:8449b734232e42a5dcd74048e39b60db2839a4c38cf3ae2bf7707d58b5389c0d
+    # via cmd2
+python-cinderclient==9.9.0 ; python_full_version < '3.11' \
+    --hash=sha256:1c7a5cb0d8202225fd8e7abc60b7cee6e23a5a2ba44f9afb0f92408330486e39 \
+    --hash=sha256:697e4d12c249f39b41ecf4fa6fcb8c38cbf2d6b2d84d6f515ed567b82dcd0bd1
+    # via python-openstackclient
+python-dateutil==2.9.0.post0 ; python_full_version >= '3.11' \
     --hash=sha256:37dd54208da7e1cd875388217d5e00ebd4179249f90fb72437e91a35459a0ad3 \
     --hash=sha256:a8b2bc7bffae282281c8140a97d3aa9c14da0b136dfe83f850eea9a5f7470427
     # via oslo-log
@@ -654,14 +772,18 @@ python-keystoneclient==6.0.0 \
     --hash=sha256:89377117dd65252af14f2ff47868087826977607636f131c01e52f9adee9774a \
     --hash=sha256:d6ac3a09adf2319aaac5728e3bf7cbeaf952c295bd7831f1df9a573b25fbcf82
     # via python-openstackclient
-python-manilaclient==6.3.0 \
+python-manilaclient==6.3.0 ; python_full_version >= '3.11' \
     --hash=sha256:92d73667a1ac20ab083588e8912b59769be0706f20fb6e9845ec06d3d72723d4 \
     --hash=sha256:d2ecbf96ffa95c1f6ba306cab969a15666d4516576334dbdf3c67baccdfbf0c6
     # via python-openstackclient
-python-openstackclient==10.5.0 \
+python-openstackclient==10.0.0 ; python_full_version < '3.11' \
+    --hash=sha256:3de316bf303b3c8b5e8793c85fe1b8e40534649bc43175246a8ff8c8246b099d \
+    --hash=sha256:c2baddc15eb9c38d07fb37385edb1e6ab0eed44b2d43ee644c249cb60c5dfc0b
+    # via -r requirements/openstack-cli.in
+python-openstackclient==10.5.0 ; python_full_version >= '3.11' \
     --hash=sha256:a31f7dfa25650bea045df42f3301677b344f2dd6cf9193d2531fe2725132685b \
     --hash=sha256:a9c77b8d2b53a9413794daa5d60cbb4fa669af64799b704cfb96d75f2e002e8e
-    # via -r openstack-cli.in
+    # via -r requirements/openstack-cli.in
 pyyaml==6.0.3 \
     --hash=sha256:00c4bdeba853cc34e7dd471f16b4114f4162dc03e6b7afcc2128711f0eca823c \
     --hash=sha256:0150219816b6a1fa26fb4699fb7daa9caf09eb1999f3b70fb6e786805e80375a \
@@ -748,6 +870,7 @@ requests==2.34.2 \
     #   keystoneauth1
     #   osc-lib
     #   oslo-config
+    #   python-cinderclient
     #   python-keystoneclient
     #   python-manilaclient
     #   python-openstackclient
@@ -765,11 +888,27 @@ rich-argparse==1.8.0 \
     --hash=sha256:679df3d832fa94ad6e4bdb07ded088cd7ea2dddc58ae9b2b46346a40b06cbc0c \
     --hash=sha256:d2a3ce7854654e2253c578763ab0a32f05016f23a55fadba7b9a91b6c0e92142
     # via cmd2
-six==1.17.0 \
+setuptools==84.2.1 \
+    --hash=sha256:3ff8b3b5492a0aa66960f4419365a86b84e013070d4313e4d4a6894f5d64d6bc \
+    --hash=sha256:ca140b45d5325a9478f880e351484f62fef15f336462e449ca0c03c873d589c2
+    # via pbr
+six==1.17.0 ; python_full_version >= '3.11' \
     --hash=sha256:4721f391ed90541fddacab5acf947aa0d3dc7d27b2e1e8eda2be8970586c3274 \
     --hash=sha256:ff70335d468e7eb6ec65b95b99d3a2836546063f63acc5171de367e834932a81
     # via python-dateutil
-stevedore==5.9.1 \
+stevedore==5.8.0 ; python_full_version < '3.11' \
+    --hash=sha256:88eede9e66ca80e34085b9174e2327da2c61ac91f24f70e41c3ad76e4bb4872b \
+    --hash=sha256:b49867b32ca3016e94100e68dbf26e72aa7b8708d0a3f73c08aeb220370ac715
+    # via
+    #   cliff
+    #   dogpile-cache
+    #   keystoneauth1
+    #   osc-lib
+    #   oslo-config
+    #   python-cinderclient
+    #   python-keystoneclient
+    #   python-openstackclient
+stevedore==5.9.1 ; python_full_version >= '3.11' \
     --hash=sha256:5c8ff3a9f336cc1a06ac0f597bc79d11a2f950bfd32e290ca56b5a301fafafbf \
     --hash=sha256:e97a2667923efda926e8713fde6a73616df68210a3cbc6f02b48967b676fd8bf
     # via
@@ -784,7 +923,11 @@ typing-extensions==4.16.0 \
     --hash=sha256:481caa481374e813c1b176ada14e97f1f67a4539ce9cfeb3f350d78d6370c2e8 \
     --hash=sha256:dc983d19a509c94dba722ee6abd33940f7c05a89e243c47e907eb4db6f1a43e5
     # via
+    #   cmd2
+    #   cryptography
+    #   dogpile-cache
     #   keystoneauth1
+    #   openstacksdk
     #   os-service-types
     #   oslo-context
 urllib3==2.8.0 \

@@ -63,3 +63,83 @@ jobs:
           flags: unittests
           name: codecov-umbrella
           fail_ci_if_error: false
+
+  workspace-isolation:
+    name: "Test action ignores workspace Python"
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      matrix:
+        # With the planted uv.toml, its required-version makes uv refuse
+        # to look up an interpreter at all; without it, the lookup would
+        # start a planted one. Run both.
+        uv-toml: [true, false]
+
+    steps:
+      - name: Harden the runner
+        uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # v2.22.1
+        with:
+          egress-policy: audit
+
+      # setup-uv in the action must not start an interpreter from the
+      # caller's workspace. Each planted interpreter records that it ran.
+      - name: Plant interpreters and uv settings in the workspace
+        env:
+          PLANT_UV_TOML: ${{ matrix.uv-toml }}
+        run: |
+          set -euo pipefail
+          marker="$RUNNER_TEMP/planted-ran"
+          stub() {
+            # $0 and $* expand when the stub runs, not here.
+            # shellcheck disable=SC2016
+            printf '#!/bin/sh\necho "%s: $0 $*" >> "%s"\nexit 1\n' \
+              "$1" "$marker" > "$2"
+            chmod +x "$2"
+          }
+          mkdir -p .venv/bin planted
+          printf 'home = /usr/bin\nversion_info = 3.12.0\n' > .venv/pyvenv.cfg
+          stub venv .venv/bin/python3
+          stub venv .venv/bin/python
+          stub python-version planted/python3
+          echo "$GITHUB_WORKSPACE/planted/python3" > .python-version
+          if [[ "$PLANT_UV_TOML" == "true" ]]; then
+            printf '%s\n' 'cache-dir = "/nonexistent/planted-cache"' \
+              'required-version = "==0.0.1"' > uv.toml
+          fi
+
+      # Teardown with placeholder credentials needs no secrets: the action
+      # installs uv and the OpenStack CLI, then fails to authenticate
+      # against an address where nothing listens. That failure is expected.
+      - name: Run the action
+        id: action
+        continue-on-error: true
+        uses: $/
+        with:
+          operation: "teardown"
+          openstack_auth_url: "http://127.0.0.1:9/v3"
+          openstack_project_id: "placeholder"
+          openstack_username: "placeholder"
+          # base64 of 'placeholder'
+          openstack_password: "cGxhY2Vob2xkZXI=" # gitleaks:allow
+
+      - name: Check the CLI installed and no planted interpreter ran
+        env:
+          ACTION_OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          set -euo pipefail
+          marker="$RUNNER_TEMP/planted-ran"
+          if [[ -e "$marker" ]]; then
+            echo "::error::A planted workspace interpreter ran:"
+            cat "$marker"
+            exit 1
+          fi
+          if ! command -v openstack >/dev/null; then
+            echo "::error::The action did not install the OpenStack CLI"
+            exit 1
+          fi
+          openstack --version
+          if [[ "$ACTION_OUTCOME" != "failure" ]]; then
+            echo "::error::Expected the placeholder credentials to fail;" \
+              "got outcome '$ACTION_OUTCOME'"
+            exit 1
+          fi
