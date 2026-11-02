@@ -10,7 +10,7 @@ name = "packer-vexxhost-bastion-action"
 version = "1.0.0"
 description = "GitHub Action for building OpenStack images with Packer through Tailscale bastion"
 readme = "ACTION_README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.10"
 license = {text = "Apache-2.0"}
 authors = [
     {name = "The Linux Foundation", email = "releng@linuxfoundation.org"}
@@ -33,12 +33,25 @@ test = [
     "PyYAML>=6.0",
 ]
 
+[dependency-groups]
+# The OpenStack CLI the action installs on the runner for setup and
+# teardown; installed on its own, locked and hash-checked through
+# uv.lock, which Dependabot's uv ecosystem keeps current.
+openstack-cli = ["python-openstackclient"]
+
 # The tests read the action's YAML and scripts from the checkout and
 # import nothing from this project, so uv never builds or installs it:
 # 'uv sync --locked --extra test' installs the test extra alone, with
 # no unlocked fetch of the build backend.
 [tool.uv]
 package = false
+
+# A workspace root of its own, with no members, so uv stops looking
+# upward from here. Without it, an action vendored inside a caller's
+# uv workspace that lists its directory as a member would sync against
+# the caller's lockfile rather than this uv.lock.
+[tool.uv.workspace]
+members = []
 
 [tool.pytest.ini_options]
 minversion = "9.0.3"

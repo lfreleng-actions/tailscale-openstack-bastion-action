@@ -205,6 +205,7 @@ runs:
       shell: bash
       env:
         ACTION_PATH: ${{ github.action_path }}
+        UV_PROJECT_ENVIRONMENT: ${{ runner.temp }}/openstack-cli
         # Install into the runner's own Python; never fetch one.
         UV_PYTHON_DOWNLOADS: never
       # The only $GITHUB_PATH write below appends a directory under the
@@ -212,19 +213,17 @@ runs:
       # is on PATH for the steps that follow; the value is not derived
       # from any action input or other user-controllable source.
       run: | # zizmor: ignore[github-env]
-        # Every distribution is pinned by hash in openstack-cli.txt;
-        # --require-hashes refuses anything outside that lock. uv runs
-        # in the caller's checkout, so --no-config and --no-project keep
-        # a .python-version or [tool.uv] there from steering this
-        # install, and --python asks for any installed interpreter the
-        # lock resolves for. --clear makes a setup followed by a
-        # teardown in one job idempotent.
-        venv="${RUNNER_TEMP}/openstack-cli"
-        uv venv --quiet --clear --no-config --no-project \
-          --python '>=3.10' "${venv}"
-        uv pip install --quiet --no-config --require-hashes \
-          --python "${venv}" \
-          --requirement "${ACTION_PATH}/requirements/openstack-cli.txt"
+        # The 'openstack-cli' dependency group holds the CLI; uv.lock pins
+        # it, and every distribution, by hash, for each CPython from 3.10.
+        # uv runs from this action's own directory and ignores uv settings,
+        # so nothing in the caller's checkout (.python-version, uv.toml,
+        # [tool.uv]) steers which interpreter or index it uses. uv sync
+        # re-syncs an existing environment, so a setup followed by a
+        # teardown in one job stays idempotent.
+        uv sync --quiet --no-config --locked --only-group openstack-cli \
+          --no-install-project --directory "${ACTION_PATH}" \
+          --python '>=3.10'
+        venv="${UV_PROJECT_ENVIRONMENT}"
         # Expose the 'openstack' entry point alone, through a directory
         # of its own: GITHUB_PATH entries are prepended, so the venv's
         # bin would put its python ahead of the caller's for the rest

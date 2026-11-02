@@ -108,8 +108,8 @@ See [ARCHITECTURE.md](docs/ARCHITECTURE.md) for detailed architecture documentat
 
 For `setup` and `teardown` the action installs
 [uv](https://github.com/astral-sh/uv) and, with it, the OpenStack CLI
-from PyPI, every distribution pinned by hash in
-`requirements/openstack-cli.txt`, into a virtual environment under the
+from PyPI, every distribution pinned by hash in `uv.lock` through the
+`openstack-cli` dependency group, into a virtual environment under the
 runner's temporary directory. It puts the `openstack` command alone on
 `PATH`, where it stays for the rest of the job, and leaves the runner's
 own `python` untouched. A runner with blocked egress needs these hosts
