@@ -6,15 +6,10 @@ import re
 from pathlib import Path
 from typing import Any
 
-import pytest
 import yaml
 
 ROOT = Path(__file__).parent.parent
 STATE = "${{ runner.temp }}/tailscale-openstack-bastion-action"
-
-pytestmark = pytest.mark.xfail(
-    strict=True, reason="action lets caller variables pick the interpreter"
-)
 
 
 def _steps() -> list[dict[str, Any]]:
@@ -83,6 +78,7 @@ def test_openstack_cli_runs_isolated():
     assert '--python "$PYTHON"' in script
     assert "ln -s" not in script
     assert '-I %q "$@"' in script
+    assert "unset PYTHONEXECUTABLE __PYVENV_LAUNCHER__" in script
     env = _step("Install OpenStack CLI")["env"]
     assert env["PYTHON"] == "${{ steps.python.outputs.path }}"
     assert env["UV"] == "${{ steps.setup-uv.outputs.uv-path }}"

@@ -36,7 +36,7 @@ def _install_step_script() -> str:
 def test_install_step_uses_locked_sync_flags():
     """The install step passes every flag this module's sync relies on."""
     script = _install_step_script()
-    assert "uv sync" in script
+    assert '"$UV" sync' in script
     for flag in SYNC_FLAGS:
         assert flag in script, f"install step lacks {flag}"
 
