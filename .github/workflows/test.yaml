@@ -143,3 +143,169 @@ jobs:
               "got outcome '$ACTION_OUTCOME'"
             exit 1
           fi
+
+  caller-isolation:
+    name: "Test action ignores caller Python settings"
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, macos-15]
+        # request: variables that name an interpreter outright.
+        # active-environment: variables that mark one as active.
+        selector: [request, active-environment]
+
+    steps:
+      - name: Harden the runner
+        if: runner.os == 'Linux'
+        uses: step-security/harden-runner@46b06cea07f9e64621fdf066ba77ac6915163d43  # v2.22.3
+        with:
+          egress-policy: audit
+
+      # Bait in the workspace, and hostile settings exported through
+      # $GITHUB_ENV, the way a caller's earlier step would. Every bait
+      # records that it ran in a marker file the verify step checks.
+      - name: Plant bait and hostile settings
+        env:
+          SELECTOR: ${{ matrix.selector }}
+        run: |
+          set -euo pipefail
+          marker="$RUNNER_TEMP/bait-ran"
+          ws="$GITHUB_WORKSPACE"
+          stub() {
+            # $0 and $* expand when the stub runs, not here.
+            # shellcheck disable=SC2016
+            printf '#!/bin/sh\necho "%s: $0 $*" >> "%s"\nexit 1\n' \
+              "$1" "$marker" > "$2"
+            chmod +x "$2"
+          }
+          mkdir -p .venv/bin .venv/conda-meta xdg-bin pkg urllib
+          for name in python python3 python3.13 uv; do
+            stub venv ".venv/bin/$name"
+          done
+          printf 'home = %s\nversion_info = 3.13.0\n' "$ws/.venv/bin" \
+            > .venv/pyvenv.cfg
+          stub xdg-bin xdg-bin/env
+          stub xdg-bin xdg-bin/bash
+          for module in json base64 sitecustomize usercustomize \
+              urllib/__init__; do
+            printf 'open(%s, "a").write("module: %s\\n")\n' \
+              "'$marker'" "$module" > "$module.py"
+          done
+
+          # Control: the bait is live for a Python that is not isolated.
+          system_python=$(command -v python3)
+          PATH="$ws/.venv/bin:$PATH" python3 -c pass || true
+          PYTHONPATH=pkg:. "$system_python" -c 'import json' || true
+          for bait in venv: module:; do
+            if ! grep -q "^$bait" "$marker"; then
+              echo "::error::Control: '$bait' bait did not run"
+              exit 1
+            fi
+          done
+          rm -f "$marker"
+
+          case "$RUNNER_ARCH" in
+            X64) arch=x86_64 ;;
+            ARM64) arch=aarch64 ;;
+            *) arch="$RUNNER_ARCH" ;;
+          esac
+          {
+            echo "PATH=$ws/.venv/bin:$PATH"
+            echo "PYTHONPATH=pkg:."
+            echo "PYTHONHOME=$ws/.venv"
+            echo "PYTHONUSERBASE=$ws/.venv"
+            echo "PYTHONSTARTUP=$ws/json.py"
+            echo "PYTHONEXECUTABLE=$ws/.venv/bin/python3"
+            echo "__PYVENV_LAUNCHER__=$ws/.venv/bin/python3"
+            echo "UV_NO_CACHE=1"
+            echo "UV_PYTHON_ARCH=$arch"
+            echo "UV_PYTHON_INSTALL_MIRROR=https://127.0.0.1:9"
+            echo "XDG_BIN_HOME=$ws/xdg-bin"
+            if [[ "$SELECTOR" == "request" ]]; then
+              echo "UV_PYTHON=$ws/.venv/bin/python3"
+              echo "UV_PYTHON_SEARCH_PATH=$ws/.venv/bin"
+              echo "UV_PYTHON_INSTALL_DIR=$ws/uv-python"
+              echo "UV_PYTHON_PREFERENCE=only-system"
+            else
+              # UV_PYTHON stays unset so it cannot mask the discovery
+              # of an active environment.
+              echo "VIRTUAL_ENV=$ws/.venv"
+              echo "CONDA_PREFIX=$ws/.venv"
+              echo "CONDA_DEFAULT_ENV=base"
+              echo "UV_INTERNAL__PARENT_INTERPRETER=$ws/.venv/bin/python3"
+              echo "UV_INTERNAL__TEST_PYTHON_MANAGED=$ws/.venv/bin"
+              echo "UV_CACHE_DIR=$ws/uv-cache"
+            fi
+          } >> "$GITHUB_ENV"
+
+      # Teardown with placeholder credentials needs no secrets: the action
+      # installs uv, Python and the OpenStack CLI, then fails to
+      # authenticate against an address where nothing listens. That
+      # failure is expected. The second run finds Python installed.
+      - name: Run the action (cold)
+        id: cold
+        continue-on-error: true
+        uses: $/
+        with:
+          operation: "teardown"
+          openstack_auth_url: "http://127.0.0.1:9/v3"
+          openstack_project_id: "placeholder"
+          openstack_username: "placeholder"
+          # base64 of 'placeholder'
+          openstack_password: "cGxhY2Vob2xkZXI=" # gitleaks:allow
+
+      - name: Run the action (warm)
+        id: warm
+        continue-on-error: true
+        uses: $/
+        with:
+          operation: "teardown"
+          openstack_auth_url: "http://127.0.0.1:9/v3"
+          openstack_project_id: "placeholder"
+          openstack_username: "placeholder"
+          # base64 of 'placeholder'
+          openstack_password: "cGxhY2Vob2xkZXI=" # gitleaks:allow
+
+      - name: Check no bait ran and the action behaved as usual
+        env:
+          COLD_OUTCOME: ${{ steps.cold.outcome }}
+          COLD_STATUS: ${{ steps.cold.outputs.status }}
+          WARM_OUTCOME: ${{ steps.warm.outcome }}
+          WARM_STATUS: ${{ steps.warm.outputs.status }}
+        run: |
+          set -euo pipefail
+          marker="$RUNNER_TEMP/bait-ran"
+          failed=0
+          check_run() {
+            if [[ "$2" != "failure" ]]; then
+              echo "::error::$1 run: expected the placeholder credentials" \
+                "to fail; got '$2'"
+              failed=1
+            fi
+            if [[ -z "$3" ]]; then
+              echo "::error::$1 run set no 'status' output"
+              failed=1
+            fi
+          }
+          check_run cold "$COLD_OUTCOME" "$COLD_STATUS"
+          check_run warm "$WARM_OUTCOME" "$WARM_STATUS"
+          expected="$RUNNER_TEMP/openstack-cli-bin/openstack"
+          if [[ "$(command -v openstack)" != "$expected" ]]; then
+            echo "::error::'openstack' is not the action's own CLI"
+            failed=1
+          fi
+          # The CLI runs here with every hostile setting still in place.
+          openstack --version || failed=1
+          case ":$PATH:" in
+            *":$GITHUB_WORKSPACE/xdg-bin:"*)
+              echo "::error::The caller's XDG_BIN_HOME is on PATH"
+              failed=1 ;;
+          esac
+          if [[ -e "$marker" ]]; then
+            echo "::error::Bait ran:"
+            cat "$marker"
+            failed=1
+          fi
+          exit "$failed"

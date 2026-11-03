@@ -107,16 +107,24 @@ See [ARCHITECTURE.md](docs/ARCHITECTURE.md) for detailed architecture documentat
 - GitHub repository secrets configured (see Configuration section)
 
 For `setup` and `teardown` the action installs
-[uv](https://github.com/astral-sh/uv) and, with it, the OpenStack CLI
-from PyPI, every distribution pinned by hash in `uv.lock` through the
-`openstack-cli` dependency group, into a virtual environment under the
-runner's temporary directory. It puts the `openstack` command alone on
+[uv](https://github.com/astral-sh/uv), a uv-managed CPython 3.13 and,
+on that interpreter, the OpenStack CLI from PyPI, every distribution
+pinned by hash in `uv.lock` through the `openstack-cli` dependency
+group, into a virtual environment under the runner's temporary
+directory. No variable or file from the calling job other than `PATH`
+chooses the interpreter. It puts the `openstack` command alone on
 `PATH`, where it stays for the rest of the job, and leaves the runner's
 own `python` untouched. A runner with blocked egress needs these hosts
 allowed: `raw.githubusercontent.com` (setup-uv's version manifest),
-`releases.astral.sh` (the uv archive, falling back to `github.com` and
-`release-assets.githubusercontent.com`), `pypi.org` and
-`files.pythonhosted.org`.
+`releases.astral.sh` (the uv archive and CPython build, falling back to
+`github.com` and `release-assets.githubusercontent.com`), `pypi.org`
+and `files.pythonhosted.org`.
+
+The action trusts the caller's `PATH`. The runner finds `bash` on it
+for every step and setup-uv runs `tar` and `ldd` from it, so a calling
+job that has put a directory from its checkout on `PATH` already runs
+its own code, whatever this action does. This includes setup-uv's bare
+`uv` call when the caller also sets `UV_NO_MODIFY_PATH`.
 
 ## Usage
 
