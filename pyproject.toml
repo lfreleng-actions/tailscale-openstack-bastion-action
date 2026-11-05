@@ -10,7 +10,7 @@ name = "packer-vexxhost-bastion-action"
 version = "1.0.0"
 description = "GitHub Action for building OpenStack images with Packer through Tailscale bastion"
 readme = "ACTION_README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 license = {text = "Apache-2.0"}
 authors = [
     {name = "The Linux Foundation", email = "releng@linuxfoundation.org"}
@@ -23,6 +23,8 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: 3.15",
 ]
 
 [project.optional-dependencies]

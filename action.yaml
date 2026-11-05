@@ -263,7 +263,7 @@ runs:
       run: | # zizmor: ignore[github-env]
         set -euo pipefail
         # The 'openstack-cli' dependency group holds the CLI; uv.lock pins
-        # it, and every distribution, by hash, for each CPython from 3.10.
+        # it, and every distribution, by hash, for each CPython from 3.11.
         # uv runs from this action's own directory with an empty
         # environment plus an allow-list, ignores uv settings, and builds
         # the environment on the trusted interpreter from the step above,

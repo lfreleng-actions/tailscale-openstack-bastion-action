@@ -20,7 +20,7 @@ updates:
   # The test dependencies and the OpenStack CLI the action installs on
   # the runner (the 'openstack-cli' dependency group) are locked with
   # uv (pyproject.toml + uv.lock); the uv ecosystem keeps that
-  # universal lockfile current, for each CPython from 3.10.
+  # universal lockfile current, for each CPython from 3.11.
   - package-ecosystem: "uv"
     directory: "/"
     schedule:
