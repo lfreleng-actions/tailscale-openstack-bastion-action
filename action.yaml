@@ -190,6 +190,22 @@ runs:
         echo "✅ Tailscale status:"
         sudo tailscale status
 
+    # With UV_NO_MODIFY_PATH set, to any value, setup-uv leaves its own
+    # binary off PATH but still starts a bare "uv python find", so the
+    # caller's PATH would pick the uv that runs, ahead of every guard on
+    # the next step. A step cannot unset an inherited variable: refuse.
+    - name: Refuse an inherited UV_NO_MODIFY_PATH
+      id: no-modify-path
+      if: inputs.operation == 'setup' || inputs.operation == 'teardown'
+      shell: bash
+      run: |
+        if [[ -n "${UV_NO_MODIFY_PATH+set}" ]]; then
+          echo "::error title=Unsupported environment::UV_NO_MODIFY_PATH" \
+            "is set, so setup-uv would start the first 'uv' on the" \
+            "caller's PATH; unset it before this action ❌"
+          exit 1
+        fi
+
     # setup-uv's only uv call for these inputs is "uv python find",
     # whose result it executes. An invalid preference makes uv refuse
     # its arguments before any lookup; setup-uv then reports the
