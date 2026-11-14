@@ -2,7 +2,9 @@
 # SPDX-FileCopyrightText: 2026 The Linux Foundation
 """Check no caller variable can choose the Python the action runs."""
 
+import os
 import re
+import subprocess
 from pathlib import Path
 from typing import Any
 
@@ -51,6 +53,31 @@ def test_setup_uv_step_is_guarded():
         "UV_PYTHON_ARCH": "",
         "UV_PYTHON_INSTALL_DIR": f"{STATE}/python",
     }
+
+
+def test_inherited_uv_no_modify_path_is_refused_before_setup_uv():
+    """An earlier step fails on UV_NO_MODIFY_PATH set to any value."""
+    names = [step.get("name") for step in _steps()]
+    refuse = _step("Refuse an inherited UV_NO_MODIFY_PATH")
+    assert names.index(refuse["name"]) < names.index("Install uv")
+    assert refuse["if"] == _step("Install uv")["if"]
+    assert "env" not in refuse
+    script = refuse["run"]
+    clean = {"PATH": os.environ["PATH"]}
+    unset = subprocess.run(
+        ["bash", "-c", script], env=clean, capture_output=True, check=False
+    )
+    assert unset.returncode == 0
+    for value in ("", "0", "1"):
+        result = subprocess.run(
+            ["bash", "-c", script],
+            env={**clean, "UV_NO_MODIFY_PATH": value},
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        assert result.returncode == 1, value
+        assert "::error" in result.stdout
 
 
 def test_uv_calls_pin_the_trusted_interpreter():

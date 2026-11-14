@@ -123,8 +123,9 @@ and `files.pythonhosted.org`.
 The action trusts the caller's `PATH`. The runner finds `bash` on it
 for every step and setup-uv runs `tar` and `ldd` from it, so a calling
 job that has put a directory from its checkout on `PATH` already runs
-its own code, whatever this action does. This includes setup-uv's bare
-`uv` call when the caller also sets `UV_NO_MODIFY_PATH`.
+its own code, whatever this action does. The action fails when the
+caller sets `UV_NO_MODIFY_PATH`, to any value: setup-uv would then
+start the first `uv` on that `PATH` rather than the one it installed.
 
 ## Usage
 
